@@ -3,7 +3,8 @@ import PlanPicker from "../components/PlanPicker.jsx";
 import NowSummary from "../components/NowSummary.jsx";
 import FocusPanels from "../components/FocusPanels.jsx";
 import TaskRow from "../components/TaskRow.jsx";
-import { useWbsState } from "../lib/useWbsState.js";
+import { readState, useWbsState } from "../lib/useWbsState.js";
+import { buildExport, staleness } from "../lib/weeklyData.js";
 import { stageRows, taskBar } from "../lib/ganttLogic.js";
 import { OWNERS, STAGES, effectivePct, isCompleted } from "../lib/wbsLogic.js";
 import { FILTERS, buildGraph, buildRows, countsFor, currentStages, focusLists, freshness, matchesFilter, nextMaintenance, scheduleOf, stageSummary } from "../lib/wbsNow.js";
@@ -12,7 +13,14 @@ const HEADERS = ["WBS", "משימה", "סטטוס", "החלטה", "אחראי", 
 
 export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
   const current = plans.find((p) => p.id === plan);
-  const { state, setMany, clearRow, setVersionB, reset } = useWbsState(plan);
+  // העדכון השבועי שמתפרסם בריפו. אם הקובץ חסר, האתר עובד כמו קודם (רק בחירות מקומיות).
+  const [weekly, setWeekly] = useState({ updated: null, plans: {} });
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}data/wbs-status.json`, { cache: "no-cache" })
+      .then((r) => (r.ok ? r.json() : null)).then((j) => { if (j && j.plans) setWeekly(j); }).catch(() => {});
+  }, []);
+  const baseRows = useMemo(() => (weekly.plans[plan] && weekly.plans[plan].rows) || {}, [weekly, plan]);
+  const { state, local, pending, setMany, clearRow, setVersionB, reset } = useWbsState(plan, baseRows);
   const versionB = state.versionB;
 
   const [filter, setFilter] = useState("all");
@@ -25,6 +33,12 @@ export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
   useEffect(() => { setFilter("all"); setOwner("all"); setQ(""); setStageFocus(null); setOpenStages({}); setOpenRows({}); }, [plan, versionB]);
 
   const now = useMemo(() => new Date(), []);
+  const stale = staleness(weekly.updated, now);
+  const exportLocal = () => {
+    const data = buildExport(plans.map((p) => p.id), readState, new Date());
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `wbs-update-${new Date().toISOString().slice(0, 10)}.json`; document.body.appendChild(a); a.click(); a.remove();
+  };
   const graph = useMemo(() => buildGraph(template), [template]);
   const rows = useMemo(() => buildRows(current, template, state.rows, versionB, graph), [current, template, state.rows, versionB, graph]);
   const rowsById = useMemo(() => new Map(rows.map((r) => [r.id, r])), [rows]);
@@ -66,17 +80,28 @@ export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">מה קורה בתכנית · WBS</h1>
-          <p className="text-sm text-slate-500">הסטטוסים וההחלטות נשמרים לכל תכנית בנפרד, בדפדפן הנוכחי. משימות שלא עודכנו ידנית מחושבות משלב התכנית.</p>
+          <p className="text-sm text-slate-500" data-testid="weekly-stamp">
+            {weekly.updated ? <>עדכון שבועי אחרון: <b>{new Date(weekly.updated + "T12:00:00").toLocaleDateString("he-IL")}</b>{stale.days !== null && <> (לפני {stale.days} ימים)</>}. </> : "אין עדכון שבועי מתפרסם. "}
+            שינויים שתעשי כאן נשמרים בדפדפן שלך בלבד, עד שיכנסו לעדכון השבועי.
+          </p>
+          {weekly.updated && stale.stale && <p className="mt-1 inline-block rounded-lg bg-amber-100 px-3 py-1 text-sm text-amber-900" data-testid="stale">העדכון השבועי ישן. הסטטוסים עלולים לא לשקף את המצב.</p>}
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <PlanPicker plans={plans} plan={plan} onChange={setPlan} />
           <button onClick={() => go("/gantt", plan)} className="rounded-xl border bg-white px-4 py-2 text-sm hover:bg-slate-50">גאנט התכנית</button>
-          <button onClick={reset} className="rounded-xl border bg-white px-4 py-2 text-sm hover:bg-slate-50">איפוס בחירות לתכנית</button>
+          <button onClick={exportLocal} className="rounded-xl border bg-white px-4 py-2 text-sm hover:bg-slate-50" title="קובץ עם כל מה ששינית בדפדפן, לשליחה לעדכון השבועי">ייצוא העדכונים שלי</button>
+          <button onClick={reset} className="rounded-xl border bg-white px-4 py-2 text-sm hover:bg-slate-50" title="מוחק את השינויים שבדפדפן וחוזר לעדכון השבועי">איפוס בחירות לתכנית</button>
         </div>
       </div>
 
       <NowSummary plan={current} completed={completed} versionB={versionB} pct={pct} current={cur} summaries={summaries} counts={counts} fresh={fresh}
         schedules={schedules} maint={maint} filter={filter} onFilter={setFilter} stageFocus={stageFocus} onStage={setStageFocus} />
+
+      {pending.length > 0 && (
+        <p className="mb-3 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm" data-testid="pending">
+          יש {pending.length} שינויים שנשמרו רק בדפדפן הזה ועוד לא נכנסו לעדכון השבועי. לחצי &quot;ייצוא העדכונים שלי&quot; ושלחי את הקובץ.
+        </p>
+      )}
 
       <FocusPanels lists={lists} onGoTo={goTo} onAction={(id, patch) => setMany(id, patch)} />
 

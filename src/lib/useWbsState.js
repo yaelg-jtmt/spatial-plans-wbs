@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { mergeOverrides, pendingLocal } from "./weeklyData.js";
 
 const keyOf = (planId) => `spatial-hub:wbs:v2:${planId}`;
 const EMPTY = { rows: {}, versionB: false };
 
-// שימו לב: נשמר ב-localStorage של הדפדפן, לכל תכנית בנפרד. לא משותף בין משתמשים.
+// שימו לב: הבחירות המקומיות נשמרות ב-localStorage של הדפדפן, לכל תכנית בנפרד, ולא משותפות בין משתמשים.
+// מה שמשותף הוא העדכון השבועי שמתפרסם בריפו (base). המקומי והשבועי ממוזגים לפי חותמת הזמן של כל שורה.
 export function readState(planId) {
   try {
     if (typeof window === "undefined") return EMPTY;
@@ -15,13 +17,13 @@ export function readState(planId) {
 }
 export const readVersionB = (planId) => readState(planId).versionB;
 
-export function useWbsState(planId) {
-  const [state, setState] = useState(EMPTY);
-  useEffect(() => setState(readState(planId)), [planId]);
+export function useWbsState(planId, baseRows = {}) {
+  const [local, setLocal] = useState(EMPTY);
+  useEffect(() => setLocal(readState(planId)), [planId]);
 
   const commit = useCallback(
     (fn) =>
-      setState((prev) => {
+      setLocal((prev) => {
         const next = fn(prev);
         try { localStorage.setItem(keyOf(planId), JSON.stringify(next)); } catch {}
         return next;
@@ -42,5 +44,8 @@ export function useWbsState(planId) {
   const setVersionB = useCallback((v) => commit((s) => ({ ...s, versionB: v })), [commit]);
   const reset = useCallback(() => commit(() => EMPTY), [commit]);
 
-  return { state, update, setMany, clearRow, setVersionB, reset };
+  // state.rows = השורות הממוזגות (העדכון השבועי + המקומי). local = המקומי בלבד.
+  const state = useMemo(() => ({ rows: mergeOverrides(baseRows, local.rows), versionB: local.versionB }), [baseRows, local]);
+  const pending = useMemo(() => pendingLocal(baseRows, local.rows), [baseRows, local.rows]);
+  return { state, local, pending, update, setMany, clearRow, setVersionB, reset };
 }

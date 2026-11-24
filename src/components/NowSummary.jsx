@@ -67,11 +67,11 @@ export default function NowSummary({ plan, completed, versionB, pct, current, su
       {!(completed && !versionB) && fresh.total > 0 && (
         fresh.confirmed === 0 ? (
           <p className="mt-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm" data-testid="trust">
-            הסטטוס של משימות השלב הנוכחי עדיין לא עודכן ידנית, והוא מחושב משלב התכנית. כדי לראות מה קורה בפועל, עדכנו סטטוס בשורות או בכפתורי הפאנלים שמתחת.
+            הסטטוס של משימות השלב הנוכחי עדיין לא עודכן, והוא מחושב משלב התכנית. כדי לראות מה קורה בפועל, יש לעדכן סטטוס בשורות או בכפתורי הפאנלים שמתחת, או לשלוח עדכון שבועי.
           </p>
         ) : (
           <p className="mt-3 text-sm text-slate-600" data-testid="trust">
-            עודכנו ידנית {fresh.confirmed} מתוך {fresh.total} משימות בשלבים הנוכחיים{fresh.last ? ` · עדכון אחרון: ${fmtDate(fresh.last)}` : ""}.
+            עודכנו {fresh.confirmed} מתוך {fresh.total} משימות בשלבים הנוכחיים{fresh.last ? ` · עדכון אחרון: ${fmtDate(fresh.last)}` : ""}.
           </p>
         )
       )}
