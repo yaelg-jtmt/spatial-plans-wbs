@@ -13,6 +13,7 @@ const plans = read("plans.json");
 const tpl = read("wbs-template.json");
 const gantt = read("gantt.json");
 const P = Object.fromEntries(plans.map((p) => [p.id, p]));
+const COMPLETED = ["AH", "SW", "OR", "GI"];
 
 // ---------- WBS: כיסוי מלא ----------
 test("WBS: כל שבעת השלבים 0–6 קיימים וכל שלב מסתיים באבן דרך", () => {
@@ -43,6 +44,49 @@ test("WBS: ערכי requirement שאינם ברשימה לא נעלמים מהת
   assert.equal(optionsWith(REQUIREMENTS, "חובה").length, REQUIREMENTS.length);
 });
 
+// ---------- שלב 2: החלטת מתודולוגיה לשלב ההצעות (חדש) ----------
+test("שלב 2: החלטה על מתודולוגיית העבודה בשלב ההצעות (2.12) בסוף שלב הניתוח, לפני אבן הדרך", () => {
+  const s2 = tpl.filter((r) => r.stage === 2).map((r) => r.id);
+  assert.equal(s2.at(-1), "M2.8");
+  assert.equal(s2.at(-2), "2.12");
+  assert.ok(s2.indexOf("2.11") < s2.indexOf("2.12"));
+  const g = tpl.find((r) => r.id === "2.12");
+  assert.match(g.task, /מתודולוגיית העבודה בשלב ההצעות/);
+  assert.match(g.task, /מחולקת למרחבים/);
+  assert.equal(g.requirement, "מותנה");
+  assert.ok(g.predecessor.split(",").includes("2.11"));
+  assert.ok(tpl.find((r) => r.id === "M2.8").predecessor.split(",").includes("2.12"));
+  assert.equal(tpl.find((r) => r.id === "3.1").predecessor, "M2.8");
+});
+test("2.12: בתכנית שהושלמה היא מוחרגת (לא מורידה מ-100%), ובתכנית פעילה 'טרם הוחלט'", () => {
+  for (const id of COMPLETED) {
+    const r = resolveRows(P[id], tpl).find((x) => x.id === "2.12");
+    assert.equal(r.decision, "הוחרג בתכולה המקורית", id);
+    assert.equal(r.excluded, true);
+    assert.equal(summarize(resolveRows(P[id], tpl)).pct, 100);
+  }
+  for (const id of ["BK", "PN", "TA", "GZ", "FI", "ZB"]) {
+    const r = resolveRows(P[id], tpl).find((x) => x.id === "2.12");
+    assert.equal(r.decision, "טרם הוחלט", id);
+    assert.equal(r.excluded, false);
+  }
+});
+test("2.12: אפשר לשנות את ההחלטה בכל תכנית, והחרגה/'לא נדרש' אינה נספרת", () => {
+  const base = summarize(resolveRows(P.PN, tpl));
+  const no = resolveRows(P.PN, tpl, { "2.12": { decision: "לא נדרש" } });
+  assert.equal(no.find((r) => r.id === "2.12").excluded, true);
+  assert.equal(summarize(no).counted, base.counted - 1);
+  const yes = resolveRows(P.PN, tpl, { "2.12": { decision: "נדרש" } });
+  assert.equal(yes.find((r) => r.id === "2.12").excluded, false);
+  assert.equal(summarize(resolveRows(P.AH, tpl, { "2.12": { decision: "נדרש" } })).counted, tpl.length);
+});
+test("2.12: בגרסה ב' היא נפתחת להחלטה גם בתכנית שהושלמה", () => {
+  const r = resolveRows(P.GI, tpl, {}, true).find((x) => x.id === "2.12");
+  assert.equal(r.decision, "טרם הוחלט");
+  assert.equal(r.excluded, false);
+  assert.equal(r.status, "טרם התחיל");
+});
+
 // ---------- הערות גורי ----------
 test("גורי 5: שלב 5 כולל את מסלולי ההטמעה שצוינו", () => {
   const t = tpl.filter((r) => r.stage === 5).map((r) => r.task).join(" | ");
@@ -58,16 +102,17 @@ test("גורי 6: לכל שורה 'משויך לתוצר' (מערך), ללא ש�
 
 // ---------- השלמה והחרגות (גורי 2,3) ----------
 test("ארבע התכניות שגורי ציין מסומנות כהושלמו ב-100%", () => {
-  for (const id of ["AH", "SW", "OR", "GI"]) {
+  for (const id of COMPLETED) {
     assert.equal(P[id].completed, true);
     assert.equal(effectivePct(P[id], tpl), 100);
   }
   for (const id of ["BK", "RA", "TH", "ZB", "PN", "TA", "GZ", "FI"]) assert.ok(!P[id].completed);
 });
-test("תכנית שהושלמה: כל הסטטוסים 'הושלם' וכל שלב 'done'", () => {
-  for (const id of ["AH", "SW", "OR", "GI"]) {
+test("תכנית שהושלמה: כל הסעיפים הנספרים 'הושלם', ורק 2.12 מוחרגת", () => {
+  for (const id of COMPLETED) {
     const rows = resolveRows(P[id], tpl);
-    assert.ok(rows.every((r) => r.status === "הושלם"), id);
+    assert.ok(rows.filter((r) => !r.excluded).every((r) => r.status === "הושלם"), id);
+    assert.deepEqual(rows.filter((r) => r.excluded).map((r) => r.id), ["2.12"]);
     assert.equal(summarize(rows).pct, 100);
     for (let s = 0; s < 7; s++) assert.equal(stageState(P[id], s), "done");
   }
@@ -77,8 +122,8 @@ test("החרגה לא מורידה מ-100%: סעיפים מוחרגים / 'לא 
   const rows = resolveRows(P.AH, tpl, over);
   const s = summarize(rows);
   assert.equal(s.pct, 100);
-  assert.equal(s.excluded, 3);
-  assert.equal(s.counted, tpl.length - 3);
+  assert.equal(s.excluded, 4); // שלוש ההחרגות + 2.12
+  assert.equal(s.counted, tpl.length - 4);
   assert.ok(rows.find((r) => r.id === "2.8").excluded);
   assert.equal(rows.find((r) => r.id === "5.3").status, "לא נדרש");
 });
@@ -93,9 +138,9 @@ test("תכנית פעילה: סעיף שלא הושלם מוריד, וסימון
 test("סטטוס ברירת מחדל נגזר משלבי התכנית (כמו במקור)", () => {
   const fi = resolveRows(P.FI, tpl);
   const st = (id) => fi.find((r) => r.id === id).status;
-  assert.equal(st("0.1"), "הושלם");      // שלב 0 < lead
-  assert.equal(st("1.1"), "בתהליך");     // שלב פעיל
-  assert.equal(st("3.2"), "טרם התחיל");  // עתידי
+  assert.equal(st("0.1"), "הושלם");
+  assert.equal(st("1.1"), "בתהליך");
+  assert.equal(st("3.2"), "טרם התחיל");
 });
 
 // ---------- גרסה ב' ----------
@@ -137,7 +182,7 @@ test("גאנט: תחזוקה היא מחזורים נפרדים ולא פס רצ
   for (const p of plans) {
     const rows = stageRows(p, gantt);
     const m = rows.find((r) => r.s === 6);
-    if (!m) continue;
+    if (!m || !m.bars.length) continue;
     assert.ok(m.bars.every((b) => b.b - b.a === 1), `${p.id}: מחזור = חודש אחד`);
     assert.ok(m.bars.every((b) => gantt.cycleMonths.includes(b.a)));
     const months = m.bars.map((b) => b.a);
@@ -149,7 +194,7 @@ test("גאנט: תחזוקה היא מחזורים נפרדים ולא פס רצ
   assert.deepEqual(maintenanceCycles({ a: 11, b: 14 }, [2, 5, 8, 11], 14), [{ a: 11, b: 12 }]);
 });
 test("גאנט: תכנית שהושלמה - שלבים 'הושלם' ללא תאריכים, ורק מחזורי תחזוקה מתוארכים", () => {
-  for (const id of ["AH", "SW", "OR", "GI"]) {
+  for (const id of COMPLETED) {
     for (const r of stageRows(P[id], gantt)) {
       if (r.s === 6) assert.ok(r.bars.length > 0);
       else { assert.equal(r.undated, true); assert.equal(r.bars.length, 0); assert.equal(r.st, "done"); }
@@ -162,38 +207,39 @@ test("גאנט: פתיחת גרסה ב' מחזירה לתכנית שהושלמה
 });
 test("גאנט: לכל תכנית תמיד 7 שורות שלבים (0–6), כולל שלבים שהסתיימו ושטרם תוזמנו", () => {
   for (const p of plans) for (const vb of [false, true]) {
-    const rows = stageRows(p, gantt, vb);
-    assert.deepEqual(rows.map((r) => r.s), [0, 1, 2, 3, 4, 5, 6], `${p.id} vb=${vb}`);
+    assert.deepEqual(stageRows(p, gantt, vb).map((r) => r.s), [0, 1, 2, 3, 4, 5, 6], `${p.id} vb=${vb}`);
   }
 });
-test("גאנט: שלבים שקדמו לשלב הנוכחי מסומנים 'הושלם' (ללא תאריך), ושלבים עתידיים ללא חלון - 'טרם תוזמן'", () => {
-  const ta = stageRows(P.TA, gantt);            // תלפיות: חלונות מ-2 עד 6
+test("גאנט: שלבים שקדמו לשלב הנוכחי 'הושלם', ושלבים עתידיים ללא חלון - 'טרם תוזמן'", () => {
+  const ta = stageRows(P.TA, gantt);
   for (const s of [0, 1]) { assert.equal(ta[s].st, "done"); assert.equal(ta[s].undated, true); assert.equal(ta[s].bars.length, 0); }
-  const fi = stageRows(P.FI, gantt);            // גבעה צרפתית: אין חלון לשלב 6
-  assert.equal(fi[0].st, "done");                 // שלב 0 קדם לשלב המוביל (1)
-  assert.equal(fi[3].st, "future");               // יש חלון עתידי
-  assert.equal(fi[6].st, "unscheduled");          // אין חלון לתחזוקה
+  const fi = stageRows(P.FI, gantt);
+  assert.equal(fi[0].st, "done");
+  assert.equal(fi[3].st, "future");
+  assert.equal(fi[6].st, "unscheduled");
   assert.ok(fi[1].bars.length === 1 && fi[2].bars.length === 1);
-  const zb = stageRows(P.ZB, gantt);            // צור באהר
+  const zb = stageRows(P.ZB, gantt);
   assert.equal(zb[0].st, "done"); assert.equal(zb[2].st, "done");
-  assert.equal(stageRows(P.SW, gantt, true)[1].st, "unscheduled"); // גרסה ב': שלבים 0–4 ללא חלון נפתחים מחדש
+  assert.equal(stageRows(P.SW, gantt, true)[1].st, "unscheduled");
 });
 test("גאנט: תכנית פעילה מציגה חלון לכל שלב מתוזמן, ועם 'span' כולל", () => {
   const rows = stageRows(P.ZB, gantt);
   assert.deepEqual(rows.filter((r) => r.bars.length).map((r) => r.s), [3, 4, 5, 6]);
   assert.ok(planSpan(rows).a === 0 && planSpan(rows).b === 8);
-  assert.equal(rows[3].bars[0].m, 1); // אבן דרך ידועה (08.12.2026)
+  assert.equal(rows[3].bars[0].m, 1);
 });
-test("גאנט: פס משימה נשאר בתוך חלון השלב שלו", () => {
-  const rows = stageRows(P.TA, gantt);
-  for (const seg of rows.filter((r) => r.s !== 6 && r.bars.length)) {
-    const stageTasks = tpl.filter((r) => r.stage === seg.s);
-    stageTasks.forEach((t, i) => {
-      const [b] = taskBar(t, i, stageTasks.length, seg);
-      assert.ok(b.a >= seg.bars[0].a && b.b <= seg.bars[0].b && b.b > b.a, `${t.id}`);
-    });
+test("גאנט: פס משימה נשאר בתוך חלון השלב שלו (כולל שלב 2 עם 2.12)", () => {
+  for (const id of ["TA", "PN", "GZ", "FI"]) {
+    const rows = stageRows(P[id], gantt);
+    for (const seg of rows.filter((r) => r.s !== 6 && r.bars.length)) {
+      const stageTasks = tpl.filter((r) => r.stage === seg.s);
+      stageTasks.forEach((t, i) => {
+        const [b] = taskBar(t, i, stageTasks.length, seg);
+        assert.ok(b.a >= seg.bars[0].a && b.b <= seg.bars[0].b && b.b > b.a, `${id} ${t.id}`);
+      });
+    }
+    for (const seg of rows.filter((r) => !r.bars.length)) assert.equal(taskBar(tpl.find((t) => t.stage === seg.s), 0, 5, seg), null);
   }
-  for (const seg of rows.filter((r) => !r.bars.length)) assert.equal(taskBar(tpl.find((t) => t.stage === seg.s), 0, 5, seg), null, `שלב ${seg.s} ללא חלון`);
   assert.equal(taskBar(tpl[0], 0, 6, { bars: [], undated: true }), null);
   assert.equal(taskBar(tpl[0], 0, 6, undefined), null);
 });

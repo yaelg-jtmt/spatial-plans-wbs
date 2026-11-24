@@ -1,0 +1,82 @@
+{
+ "displayFieldName": "",
+ "geometryType": "esriGeometryPoint",
+ "spatialReference": {
+  "wkid": 2039,
+  "latestWkid": 2039
+ },
+ "features": [
+  {
+   "attributes": {
+    "FID": 0,
+    "kod_z": "1-4",
+    "schuna": "גילה א",
+    "pirut": "הליכה",
+    "mahut": "מעבר חציה",
+    "shem_p": "הוספת 2 מקומות חצייה להולכי רגל ברחוב ורדינון",
+    "homesh": "מיידי",
+    "helka": "28046",
+    "gush": "58",
+    "ta_idk": "10/26",
+    "gorem_idk": "OH",
+    "sh_tich": " ",
+    "sh_bit": " ",
+    "status": " ",
+    "hafnaia": " ",
+    "eharot": " "
+   },
+   "geometry": {
+    "x": 218835.60576419532,
+    "y": 626946.2243684363
+   }
+  },
+  {
+   "attributes": {
+    "FID": 91,
+    "kod_z": "2-57",
+    "schuna": "גילה ב",
+    "pirut": "תחבורה ציבורית",
+    "mahut": "תחנה חדשה",
+    "shem_p": "הוספת 3 תחנות לכל כיוון ברחוב שלמה דוגה",
+    "homesh": "חומש 2",
+    "helka": "28110",
+    "gush": "20",
+    "ta_idk": "10/26",
+    "gorem_idk": "OH",
+    "sh_tich": " ",
+    "sh_bit": " ",
+    "status": " ",
+    "hafnaia": " ",
+    "eharot": " "
+   },
+   "geometry": {
+    "x": 218982.56093452589,
+    "y": 626529.4485097765
+   }
+  },
+  {
+   "attributes": {
+    "FID": 114,
+    "kod_z": "1-21",
+    "schuna": "גילה א",
+    "pirut": "אופניים",
+    "mahut": "אחר",
+    "shem_p": "הקמת 116 עמדות חניה לאופניים בתחנת המור קו רק\"ל כחול",
+    "homesh": "חומש 2",
+    "helka": "28047",
+    "gush": "66",
+    "ta_idk": "10/26",
+    "gorem_idk": "OH",
+    "sh_tich": " ",
+    "sh_bit": " ",
+    "status": " ",
+    "hafnaia": " ",
+    "eharot": " "
+   },
+   "geometry": {
+    "x": 219069.93472326768,
+    "y": 626637.3004296841
+   }
+  }
+ ]
+}

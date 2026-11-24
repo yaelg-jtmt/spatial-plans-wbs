@@ -29,7 +29,10 @@ export function taskStatus(plan, row, versionB = false) {
   return "טרם התחיל";
 }
 
-export function defaultDecision(row, versionB = false) {
+export function defaultDecision(row, versionB = false, plan = null) {
+  // שורה שנוספה אחרי התכולה המקורית (row.postScope): בתכנית שהושלמה היא מוחרגת ולכן לא מורידה מ-100%.
+  // בגרסה ב' התכנית כבר לא "הושלמה", והשורה נפתחת להחלטה כמו שאר רכיבי שלבים 0–4.
+  if (row.postScope && plan && isCompleted(plan, versionB)) return "הוחרג בתכולה המקורית";
   if (versionB && row.stage <= 4 && !isMilestone(row)) return "טרם הוחלט"; // גרסה ב': עוברים על הצ'קליסט ומחליטים
   if (isMilestone(row)) return "נדרש";
   if (String(row.requirement).startsWith("חובה") && row.requirement !== "חובה/לפי צורך") return "נדרש";
@@ -37,7 +40,7 @@ export function defaultDecision(row, versionB = false) {
 }
 
 export function resolveRow(plan, row, over = {}, versionB = false) {
-  const decision = over.decision ?? defaultDecision(row, versionB);
+  const decision = over.decision ?? defaultDecision(row, versionB, plan);
   const excluded = EXCLUDED.includes(decision);
   const status = excluded ? decision : over.status ?? taskStatus(plan, row, versionB);
   return {
