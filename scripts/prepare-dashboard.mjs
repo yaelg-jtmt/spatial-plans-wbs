@@ -4,13 +4,15 @@
 //  3. מסיר את בלוק המטא-דאטה של SharePoint (כתובת פנימית של הארגון)
 //  4. מסתיר את חלון "טעינת שכבות ומצגת" ומזריק טעינה של שכבות ומצגות מקבצי האתר (scripts/dashboard-patch.mjs)
 //  5. מזריק את פופאפ חתכי הרחוב קיים | מוצע (scripts/sections-patch.mjs)
-//  6. מוסיף <script src="config.js"> לפני שאר הסקריפטים ו-<script src="bridge.js"> לפני </body>
+//  6. מזריק הורדת טבלאות: תב"עות לפי מרחב, ופרויקטים שעוברים בתחום תב"ע (scripts/xtables-patch.mjs)
+//  7. מוסיף <script src="config.js"> לפני שאר הסקריפטים ו-<script src="bridge.js"> לפני </body>
 // בטוח להרצה חוזרת על קובץ מקור חדש.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { patchDashboard } from "./dashboard-patch.mjs";
 import { patchSections } from "./sections-patch.mjs";
+import { patchXtables } from "./xtables-patch.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const src = process.argv[2];
@@ -37,7 +39,7 @@ const msoRe = /<!--\[if gte mso 9\]>[\s\S]*?<!\[endif\]-->/g;
 if (msoRe.test(html)) { html = html.replace(msoRe, ""); log.push("הוסר בלוק מטא-דאטה של SharePoint"); }
 html = html.replace(/\sxmlns:mso="[^"]*"/, "").replace(/\sxmlns:msdt="[^"]*"/, "");
 
-for (const patch of [patchDashboard, patchSections]) {
+for (const patch of [patchDashboard, patchSections, patchXtables]) {
   const r = patch(html);
   html = r.html; log.push(...r.log); warn.push(...r.warn);
 }
