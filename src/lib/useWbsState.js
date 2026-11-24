@@ -29,12 +29,18 @@ export function useWbsState(planId) {
     [planId]
   );
 
-  const update = useCallback(
-    (id, field, value) => commit((s) => ({ ...s, rows: { ...s.rows, [id]: { ...(s.rows[id] || {}), [field]: value } } })),
+  // כל עדכון לשורה מתועד בחותמת זמן (updated), כדי שאפשר לדעת מתי היא עודכנה לאחרונה.
+  const setMany = useCallback(
+    (id, patch) => commit((s) => ({ ...s, rows: { ...s.rows, [id]: { ...(s.rows[id] || {}), ...patch, updated: new Date().toISOString() } } })),
+    [commit]
+  );
+  const update = useCallback((id, field, value) => setMany(id, { [field]: value }), [setMany]);
+  const clearRow = useCallback(
+    (id) => commit((s) => { const rows = { ...s.rows }; delete rows[id]; return { ...s, rows }; }),
     [commit]
   );
   const setVersionB = useCallback((v) => commit((s) => ({ ...s, versionB: v })), [commit]);
   const reset = useCallback(() => commit(() => EMPTY), [commit]);
 
-  return { state, update, setVersionB, reset };
+  return { state, update, setMany, clearRow, setVersionB, reset };
 }

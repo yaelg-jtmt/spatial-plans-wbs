@@ -1,54 +1,72 @@
-import { useMemo, useState } from "react";
-import Select from "../components/Select.jsx";
-import ProductAssignment from "../components/ProductAssignment.jsx";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import PlanPicker from "../components/PlanPicker.jsx";
-import StageFlow from "../components/StageFlow.jsx";
+import NowSummary from "../components/NowSummary.jsx";
+import FocusPanels from "../components/FocusPanels.jsx";
+import TaskRow from "../components/TaskRow.jsx";
 import { useWbsState } from "../lib/useWbsState.js";
 import { stageRows, taskBar } from "../lib/ganttLogic.js";
-import {
-  DECISIONS, OWNERS, REQUIREMENTS, STAGES, STATUSES,
-  effectivePct, isCompleted, optionsWith, resolveRows, summarize,
-} from "../lib/wbsLogic.js";
+import { OWNERS, STAGES, effectivePct, isCompleted } from "../lib/wbsLogic.js";
+import { FILTERS, buildGraph, buildRows, countsFor, currentStages, focusLists, freshness, matchesFilter, nextMaintenance, scheduleOf, stageSummary } from "../lib/wbsNow.js";
 
-const BAR = { done: "bg-emerald-500", active: "bg-amber-500", future: "bg-slate-400", maint: "bg-blue-600" };
-const FILTERS = ["הכול", "רק פתוחות", "רק שהושלמו", "רק מוחרגות / לא נדרש"];
-const keep = { "הכול": () => true, "רק פתוחות": (r) => !r.excluded && r.status !== "הושלם", "רק שהושלמו": (r) => r.status === "הושלם", "רק מוחרגות / לא נדרש": (r) => r.excluded };
-
-function MiniGantt({ bars, total, color }) {
-  return (
-    <div className="grid h-6 items-center" style={{ gridTemplateColumns: `repeat(${total}, 1fr)` }}>
-      {bars.map((b, i) => (
-        <div key={i} className={`h-4 rounded ${color}`} style={{ gridColumn: `${b.a + 1} / span ${Math.max(1, b.b - b.a)}` }} />
-      ))}
-    </div>
-  );
-}
+const HEADERS = ["WBS", "משימה", "סטטוס", "החלטה", "אחראי", "הפעולה הבאה"];
 
 export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
   const current = plans.find((p) => p.id === plan);
-  const { state, update, setVersionB, reset } = useWbsState(plan);
+  const { state, setMany, clearRow, setVersionB, reset } = useWbsState(plan);
   const versionB = state.versionB;
-  const [open, setOpen] = useState(() => Object.fromEntries(STAGES.map((_, i) => [i, true])));
-  const [show, setShow] = useState("הכול");
 
-  const rows = useMemo(() => resolveRows(current, template, state.rows, versionB), [current, template, state.rows, versionB]);
-  const sum = summarize(rows);
-  const seg = useMemo(() => Object.fromEntries(stageRows(current, gantt, versionB).map((r) => [r.s, r])), [current, gantt, versionB]);
+  const [filter, setFilter] = useState("all");
+  const [owner, setOwner] = useState("all");
+  const [q, setQ] = useState("");
+  const [stageFocus, setStageFocus] = useState(null);
+  const [openStages, setOpenStages] = useState({});
+  const [openRows, setOpenRows] = useState({});
+  const [flash, setFlash] = useState(null);
+  useEffect(() => { setFilter("all"); setOwner("all"); setQ(""); setStageFocus(null); setOpenStages({}); setOpenRows({}); }, [plan, versionB]);
+
+  const now = useMemo(() => new Date(), []);
+  const graph = useMemo(() => buildGraph(template), [template]);
+  const rows = useMemo(() => buildRows(current, template, state.rows, versionB, graph), [current, template, state.rows, versionB, graph]);
+  const rowsById = useMemo(() => new Map(rows.map((r) => [r.id, r])), [rows]);
+  const cur = useMemo(() => currentStages(current, versionB), [current, versionB]);
+  const maxStage = Math.max(...cur);
+  const summaries = useMemo(() => STAGES.map((_, s) => stageSummary(rows, s)), [rows]);
+  const counts = useMemo(() => countsFor(rows, maxStage), [rows, maxStage]);
+  const lists = useMemo(() => focusLists(rows, maxStage), [rows, maxStage]);
+  const fresh = useMemo(() => freshness(rows, cur), [rows, cur]);
+  const segs = useMemo(() => Object.fromEntries(stageRows(current, gantt, versionB).map((r) => [r.s, r])), [current, gantt, versionB]);
+  const schedules = useMemo(() => Object.fromEntries(cur.map((s) => [s, scheduleOf(current, gantt, s, versionB, now)])), [cur, current, gantt, versionB, now]);
+  const maint = useMemo(() => nextMaintenance(current, gantt, versionB, now), [current, gantt, versionB, now]);
   const completed = isCompleted(current, versionB);
-  const jump = (s) => {
-    setShow("הכול");
-    setOpen((o) => ({ ...o, [s]: true }));
-    setTimeout(() => document.getElementById(`stage-${s}`)?.scrollIntoView({ block: "start", behavior: "smooth" }), 50);
-  };
+  const pct = effectivePct(current, template, state);
   const total = gantt.months.length;
-  const headers = ["WBS", "משימה", "חובה / לפי צורך", "החלטה", "סטטוס", "אחראי", "Predecessor", "תוצר", "Next Action", "משויך לתוצר", "גאנט"];
+
+  const needle = q.trim().toLowerCase();
+  const filtersOn = filter !== "all" || owner !== "all" || needle !== "" || stageFocus !== null;
+  const matches = (r) =>
+    (stageFocus === null || r.stage === stageFocus) &&
+    matchesFilter(r, filter, maxStage) &&
+    (owner === "all" || r.owner === owner) &&
+    (!needle || [r.id, r.task, r.next, r.deliverable, r.note, r.owner].some((t) => String(t || "").toLowerCase().includes(needle)));
+  const isOpen = (s) => filtersOn || (s in openStages ? openStages[s] : cur.includes(s));
+
+  const clearFilters = () => { setFilter("all"); setOwner("all"); setQ(""); setStageFocus(null); };
+  const goTo = (id) => {
+    const r = rowsById.get(id); if (!r) return;
+    clearFilters();
+    setOpenStages((o) => ({ ...o, [r.stage]: true }));
+    setOpenRows((o) => ({ ...o, [id]: true }));
+    setFlash(id);
+    setTimeout(() => document.getElementById(`task-${id}`)?.scrollIntoView({ block: "center", behavior: "smooth" }), 60);
+    setTimeout(() => setFlash((f) => (f === id ? null : f)), 2500);
+  };
 
   return (
     <>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">WBS אינטראקטיבי · כל 7 השלבים</h1>
-          <p className="text-sm text-slate-500">כולל שלבים שהושלמו. הבחירות נשמרות לכל תכנית בנפרד, בדפדפן הנוכחי.</p>
+          <h1 className="text-2xl font-bold">מה קורה בתכנית · WBS</h1>
+          <p className="text-sm text-slate-500">הסטטוסים וההחלטות נשמרים לכל תכנית בנפרד, בדפדפן הנוכחי. משימות שלא עודכנו ידנית מחושבות משלב התכנית.</p>
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <PlanPicker plans={plans} plan={plan} onChange={setPlan} />
@@ -57,111 +75,97 @@ export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
         </div>
       </div>
 
-      <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-2">
-          <b className="text-lg">{current.name}</b>
-          {completed && <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">✓ התכנית הושלמה · 100%</span>}
-          {versionB && <span className="rounded-full bg-violet-100 px-3 py-1 text-sm font-semibold text-violet-700">גרסה ב׳ בעבודה</span>}
-        </div>
-        <StageFlow plan={current} versionB={versionB} />
-        <div className="grid gap-3 text-sm md:grid-cols-4">
-          <div><b>התקדמות:</b> {effectivePct(current, template, state)}%</div>
-          <div><b>יעד:</b> {current.target}</div>
-          <div><b>משימות:</b> {sum.done} מתוך {sum.counted} הושלמו</div>
-          <div><b>לא נספרות (מוחרגות / לא נדרש):</b> {sum.excluded}</div>
-        </div>
-        <p className="mt-2 text-xs text-slate-500">סעיף שהוחרג או סומן &quot;לא נדרש&quot; אינו מוריד ואינו מוסיף לאחוז ההשלמה.</p>
-      </div>
+      <NowSummary plan={current} completed={completed} versionB={versionB} pct={pct} current={cur} summaries={summaries} counts={counts} fresh={fresh}
+        schedules={schedules} maint={maint} filter={filter} onFilter={setFilter} stageFocus={stageFocus} onStage={setStageFocus} />
+
+      <FocusPanels lists={lists} onGoTo={goTo} onAction={(id, patch) => setMany(id, patch)} />
 
       <div className="mb-4 rounded-2xl border border-violet-200 bg-violet-50 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <b>גרסה ב׳ / עדכון מהותי</b>
-            <p className="mt-1 text-sm">
-              פותח מחדש את שלבים 0–4 לבחינה: כל רכיב עובר ל&quot;טרם הוחלט&quot;, ובכל שורה בוחרים נדרש / לא נדרש. לא כל המשימות נפתחות אוטומטית.
-            </p>
+            <p className="mt-1 text-sm">פותח מחדש את שלבים 0–4 לבחינה: כל רכיב עובר ל&quot;טרם הוחלט&quot;, ובכל שורה בוחרים נדרש / לא נדרש. לא כל המשימות נפתחות אוטומטית.</p>
           </div>
-          <button
-            onClick={() => setVersionB(!versionB)}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold ${versionB ? "border bg-white text-violet-700" : "bg-violet-600 text-white"}`}
-          >
+          <button onClick={() => setVersionB(!versionB)} className={`rounded-xl px-4 py-2 text-sm font-semibold ${versionB ? "border bg-white text-violet-700" : "bg-violet-600 text-white"}`}>
             {versionB ? "סגירת גרסה ב׳" : "פתיחת גרסה ב׳"}
           </button>
         </div>
       </div>
 
-      <div className="mb-3 flex flex-wrap items-center gap-3 text-sm">
-        <label className="flex items-center gap-2">הצג
-          <select value={show} onChange={(e) => setShow(e.target.value)} className="rounded-lg border bg-white px-3 py-2">
-            {FILTERS.map((f) => <option key={f}>{f}</option>)}
-          </select>
-        </label>
-        <span className="flex flex-wrap items-center gap-1">
-          קפוץ לשלב:
-          {STAGES.map((n, i) => (
-            <button key={i} onClick={() => jump(i)} className="rounded-lg border bg-white px-2 py-1 text-xs hover:bg-blue-50" title={n}>{i}</button>
+      <section aria-label="כל המשימות">
+        <div className="mb-2 flex flex-wrap items-center gap-2" role="group" aria-label="מסנני משימות">
+          {FILTERS.map((f) => (
+            <button key={f.key} type="button" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)}
+              className={`rounded-full border px-3 py-1 text-sm ${filter === f.key ? "border-slate-800 bg-slate-800 text-white" : "bg-white hover:bg-slate-50"}`}>
+              {f.label} <span className="opacity-70">{counts[f.key]}</span>
+            </button>
           ))}
-        </span>
-        <button onClick={() => setOpen(Object.fromEntries(STAGES.map((_, i) => [i, true])))} className="rounded-lg border bg-white px-3 py-2">פתח כל השלבים</button>
-        <button onClick={() => setOpen(Object.fromEntries(STAGES.map((_, i) => [i, false])))} className="rounded-lg border bg-white px-3 py-2">סגור כל השלבים</button>
-      </div>
+        </div>
+        <div className="mb-3 flex flex-wrap items-center gap-3 text-sm">
+          <input type="search" value={q} onChange={(e) => setQ(e.target.value)} aria-label="חיפוש במשימות" placeholder="חיפוש לפי מספר, שם, הערה או פעולה" className="min-w-[260px] rounded-lg border bg-white px-3 py-2" />
+          <label className="flex items-center gap-2">אחראי
+            <select aria-label="סינון לפי אחראי" value={owner} onChange={(e) => setOwner(e.target.value)} className="rounded-lg border bg-white px-3 py-2">
+              <option value="all">כולם</option>
+              {OWNERS.map((o) => <option key={o}>{o}</option>)}
+            </select>
+          </label>
+          {stageFocus !== null && <span className="rounded-full bg-blue-50 px-3 py-1 text-blue-800">מוצג רק שלב {stageFocus}: {STAGES[stageFocus]}</span>}
+          {filtersOn && <button type="button" onClick={clearFilters} className="rounded-lg border bg-white px-3 py-2">ניקוי סינון</button>}
+          <button type="button" onClick={() => setOpenStages(Object.fromEntries(STAGES.map((_, i) => [i, true])))} className="rounded-lg border bg-white px-3 py-2">פתח כל השלבים</button>
+          <button type="button" onClick={() => setOpenStages(Object.fromEntries(STAGES.map((_, i) => [i, false])))} className="rounded-lg border bg-white px-3 py-2">סגור כל השלבים</button>
+        </div>
 
-      <div className="max-h-[70vh] overflow-auto rounded-2xl border bg-white">
-        <table className="w-full min-w-[2000px] text-sm">
-          <thead className="sticky top-0 z-30 bg-slate-100 shadow-sm">
-            <tr>{headers.map((h) => <th className="border-b p-3 text-right" key={h}>{h}</th>)}</tr>
-          </thead>
-          <tbody>
-            {STAGES.map((name, s) => {
-              const stageAll = rows.filter((r) => r.stage === s);
-              const ss = summarize(stageAll);
-              const list = stageAll.filter(keep[show]);
-              const gs = seg[s];
-              return [
-                <tr key={`h${s}`} id={`stage-${s}`} className="scroll-mt-14 cursor-pointer bg-blue-50 font-semibold" onClick={() => setOpen((o) => ({ ...o, [s]: !o[s] }))}>
-                  <td className="p-3" colSpan={headers.length}>
-                    {open[s] ? "▾" : "◂"} שלב {s}: {name} · {ss.done}/{ss.counted} הושלמו{ss.excluded ? ` · ${ss.excluded} לא נספרות` : ""}
-                  </td>
-                </tr>,
-                ...(open[s]
-                  ? list.map((r) => {
-                      const idx = stageAll.indexOf(r);
-                      const bars = taskBar(r, idx, stageAll.length, gs);
+        <div className="max-h-[75vh] overflow-auto rounded-2xl border bg-white">
+          <table className="w-full min-w-[1100px] text-sm">
+            <thead className="sticky top-0 z-30 bg-slate-100 shadow-sm">
+              <tr>
+                {HEADERS.map((h) => <th className="border-b p-3 text-right" key={h}>{h}</th>)}
+                <th className="border-b p-3 text-right"><span className="sr-only">פרטים</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {STAGES.map((name, s) => {
+                const all = rows.filter((r) => r.stage === s), vis = all.filter(matches), sum = summaries[s], open = isOpen(s), isCur = cur.includes(s), sch = schedules[s];
+                if (filtersOn && vis.length === 0) return null;
+                return (
+                  <Fragment key={s}>
+                    <tr id={`stage-${s}`} className={`scroll-mt-12 ${isCur ? "bg-blue-100" : "bg-blue-50"}`}>
+                      <td colSpan={7} className="p-0">
+                        <button type="button" aria-expanded={open} disabled={filtersOn} onClick={() => setOpenStages((o) => ({ ...o, [s]: !open }))} className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 p-3 text-start font-semibold disabled:cursor-default">
+                          <span aria-hidden="true">{open ? "▾" : "◂"}</span>
+                          <span>שלב {s}: {name}</span>
+                          <span className="text-xs font-normal text-slate-700">✓ {sum.done}/{sum.counted}</span>
+                          {sum.active > 0 && <span className="text-xs font-normal text-amber-800">● {sum.active} בעבודה</span>}
+                          {sum.ready > 0 && <span className="text-xs font-normal text-blue-800">▶ {sum.ready} מוכנות</span>}
+                          {sum.undecided > 0 && <span className="text-xs font-normal text-violet-800">? {sum.undecided} להחלטה</span>}
+                          {sum.stuck > 0 && <span className="text-xs font-normal text-red-700">⚠ {sum.stuck} מעוכבות</span>}
+                          {sum.excluded > 0 && <span className="text-xs font-normal text-slate-500">⊘ {sum.excluded} לא נספרות</span>}
+                          {isCur && <span className="rounded-full bg-blue-600 px-2 text-xs font-bold text-white">{versionB ? "בבחינה מחדש" : "כעת"}</span>}
+                          {sch && <span className="text-xs font-normal text-slate-600">חלון בגאנט: {sch.label}</span>}
+                          {sch && sch.late && <span className="rounded-full bg-red-100 px-2 text-xs text-red-700">עבר החלון</span>}
+                          {filtersOn && <span className="text-xs font-normal text-slate-600">מוצגות {vis.length}</span>}
+                        </button>
+                      </td>
+                    </tr>
+                    {open && vis.map((r) => {
+                      const idx = all.indexOf(r), gs = segs[r.stage];
                       return (
-                        <tr key={r.id} className="border-b align-top hover:bg-slate-50">
-                          <td className="p-3 font-bold">{r.id}</td>
-                          <td className="p-3">{r.task}</td>
-                          <td className="p-2"><Select className="min-w-[140px]" value={r.requirement} options={optionsWith(REQUIREMENTS, r.requirement)} onChange={(v) => update(r.id, "requirement", v)} /></td>
-                          <td className="p-2"><Select className="min-w-[190px]" value={r.decision} options={DECISIONS} onChange={(v) => update(r.id, "decision", v)} /></td>
-                          <td className="p-2">
-                            {r.excluded ? (
-                              <span className="inline-block min-w-[120px] rounded-full bg-slate-100 px-3 py-2 text-xs text-slate-600">{r.status}</span>
-                            ) : (
-                              <Select className="min-w-[120px]" value={r.status} options={STATUSES} onChange={(v) => update(r.id, "status", v)} />
-                            )}
-                          </td>
-                          <td className="p-2"><Select className="min-w-[160px]" value={r.owner} options={OWNERS} onChange={(v) => update(r.id, "owner", v)} /></td>
-                          <td className="p-3">{r.predecessor}</td>
-                          <td className="p-3">{r.deliverable}</td>
-                          <td className="p-3">{r.next}</td>
-                          <td className="p-2"><ProductAssignment values={r.products} onChange={(v) => update(r.id, "products", v)} /></td>
-                          <td className="min-w-[320px] p-2">
-                            {bars ? (
-                              <MiniGantt bars={bars} total={total} color={r.status === "הושלם" ? BAR.done : r.status === "בתהליך" ? BAR.active : s === 6 ? BAR.maint : BAR.future} />
-                            ) : (
-                              <span className="text-xs text-slate-400">{gs?.undated ? "הושלם (ללא תאריך)" : gs?.st === "unscheduled" ? "טרם תוזמן" : "—"}</span>
-                            )}
-                          </td>
-                        </tr>
+                        <TaskRow key={r.id} r={r} open={!!openRows[r.id]} onToggle={(id) => setOpenRows((o) => ({ ...o, [id]: !o[id] }))}
+                          onPatch={setMany} onClear={clearRow} onGoTo={goTo} rowsById={rowsById} graph={graph} flash={flash === r.id}
+                          bars={taskBar(r, idx, all.length, gs)} total={total} undatedText={gs && gs.undated ? "הושלם (ללא תאריך)" : gs && gs.st === "unscheduled" ? "טרם תוזמן" : "אין חלון בגאנט"} />
                       );
-                    })
-                  : []),
-              ];
-            })}
-          </tbody>
-        </table>
-      </div>
-      <p className="mt-2 text-xs text-slate-500">תאריכי הגאנט הם תכנון עבודה ראשוני (חלון זמן לכל שלב), עד לאימות תאריכים מדויקים.</p>
+                    })}
+                  </Fragment>
+                );
+              })}
+              {filtersOn && STAGES.every((_, s) => rows.filter((r) => r.stage === s).filter(matches).length === 0) && (
+                <tr><td colSpan={7} className="p-6 text-center text-slate-500">אין משימות שמתאימות לסינון.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-xs text-slate-500">תאריכי הגאנט הם תכנון ראשוני (חלון זמן לכל שלב), עד לאימות תאריכים מדויקים.</p>
+      </section>
     </>
   );
 }
