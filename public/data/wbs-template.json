@@ -1,121 +1,706 @@
 [
   {
+    "id": "0.1",
+    "stage": 0,
+    "task": "הגדרת מטרות, גבולות ותכולה",
+    "requirement": "חובה",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "—",
+    "deliverable": "תכולת עבודה",
+    "next": "להשלים תכולה ולאשר",
+    "products": []
+  },
+  {
+    "id": "0.2",
+    "stage": 0,
+    "task": "התקשרות והזמנת עבודה",
+    "requirement": "חובה",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "0.1",
+    "deliverable": "הזמנה מאושרת",
+    "next": "לקדם אישורים והתקשרות",
+    "products": []
+  },
+  {
+    "id": "0.3",
+    "stage": 0,
+    "task": "הקמת סביבת עבודה ומבנה תיוק",
+    "requirement": "חובה",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "0.2",
+    "deliverable": "סביבת עבודה",
+    "next": "לפתוח תיקיות ולרכז חומרים",
+    "products": []
+  },
+  {
+    "id": "0.4",
+    "stage": 0,
+    "task": "פגישת התנעה וחלוקת אחריות",
+    "requirement": "חובה",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "0.2,0.3",
+    "deliverable": "סיכום התנעה",
+    "next": "לקיים התנעה ולתעד החלטות",
+    "products": []
+  },
+  {
+    "id": "0.5",
+    "stage": 0,
+    "task": "WBS, לו״ז ואבני דרך",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "0.4",
+    "deliverable": "תכנית עבודה",
+    "next": "לאשר WBS ולו״ז",
+    "products": []
+  },
+  {
+    "id": "M0.6",
+    "stage": 0,
+    "task": "תחילת מצב קיים",
+    "requirement": "אבן דרך",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "0.5",
+    "deliverable": "אישור מעבר",
+    "next": "לפתוח שלב 1",
+    "products": []
+  },
+  {
+    "id": "1.1",
+    "stage": 1,
+    "task": "איסוף GIS, תכניות, פרויקטים ונתונים",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "M0.6",
+    "deliverable": "מאגר מידע",
+    "next": "להשלים קלטים ולתעד פערים",
+    "products": []
+  },
+  {
+    "id": "1.2",
+    "stage": 1,
+    "task": "מיפוי המרחב ורשת הרחובות",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "1.1",
+    "deliverable": "בסיס GIS",
+    "next": "להשלים גבולות, רשת ומוקדים",
+    "products": []
+  },
+  {
+    "id": "1.3",
+    "stage": 1,
+    "task": "מיפוי תחבורה, הליכה, אופניים ובטיחות",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "1.1,1.2",
+    "deliverable": "תשריטי מצב קיים",
+    "next": "להשלים שכבות נושאיות",
+    "products": []
+  },
+  {
+    "id": "1.4",
+    "stage": 1,
+    "task": "מצב תכנוני עתידי ותכניות מקודמות",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "1.1",
+    "deliverable": "טבלת תכניות",
+    "next": "לאמת מלאי תכניות",
+    "products": []
+  },
+  {
+    "id": "1.5",
+    "stage": 1,
+    "task": "סיור והשלמות מול גורמים",
+    "requirement": "חובה",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "1.1",
+    "deliverable": "תיעוד והשלמות",
+    "next": "לקיים סיור ולסגור פערי מידע",
+    "products": []
+  },
+  {
+    "id": "1.8",
+    "stage": 1,
+    "task": "חבילת מצב קיים ומתוכנן",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "1.2–1.5",
+    "deliverable": "מצגת, תשריט ו-GIS",
+    "next": "להכין חבילת הצגה",
+    "products": []
+  },
+  {
+    "id": "M1.5",
+    "stage": 1,
+    "task": "מצב קיים ומתוכנן מאושר",
+    "requirement": "אבן דרך",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "1.8",
+    "deliverable": "אישור שלב 1",
+    "next": "לאשר מעבר לניתוח",
+    "products": []
+  },
+  {
+    "id": "2.1",
+    "stage": 2,
+    "task": "הגדרת שאלות ומסגרת הניתוח",
+    "requirement": "חובה",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "M1.5",
+    "deliverable": "מטריצת ניתוחים",
+    "next": "להגדיר חובה/לפי צורך",
+    "products": []
+  },
+  {
+    "id": "2.2",
+    "stage": 2,
+    "task": "תחזיות דמוגרפיות ופיתוח",
+    "requirement": "חובה*",
+    "owner": "יועץ מקצועי",
+    "predecessor": "1.4,2.1",
+    "deliverable": "תחזית מאושרת",
+    "next": "לקבל קלט ולתקף תחזית",
+    "products": []
+  },
+  {
+    "id": "2.3",
+    "stage": 2,
+    "task": "תרחיש פיתוח ריאלי",
+    "requirement": "חובה*",
+    "owner": "יועץ מקצועי",
+    "predecessor": "2.2",
+    "deliverable": "תרחיש מאושר",
+    "next": "לקבוע שנת יעד והנחות מימוש",
+    "products": []
+  },
+  {
+    "id": "2.4",
+    "stage": 2,
+    "task": "החלטה והרצת מודל תחבורתי",
+    "requirement": "מותנה",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "2.1,2.3",
+    "deliverable": "תוצאות מודל/החלטת N/A",
+    "next": "לקיים Decision Gate",
+    "products": []
+  },
+  {
+    "id": "2.5",
+    "stage": 2,
+    "task": "ניתוח רשת, קישוריות ונגישות",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "1.2,2.1",
+    "deliverable": "מפות ניתוח",
+    "next": "להשלים ניתוח לפי תתי-מרחבים",
+    "products": []
+  },
+  {
+    "id": "2.6",
+    "stage": 2,
+    "task": "ניתוח הליכה ואופניים",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "1.3",
+    "deliverable": "ניתוח פעיל",
+    "next": "לזהות רציפות וחיבורים חסרים",
+    "products": []
+  },
+  {
+    "id": "2.7",
+    "stage": 2,
+    "task": "ניתוח תחבורה ציבורית",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "1.3",
+    "deliverable": "ניתוח תח״צ",
+    "next": "לנתח כיסוי, תדירות ונגישות",
+    "products": []
+  },
+  {
+    "id": "2.8",
+    "stage": 2,
+    "task": "ביקושים, נפחים ופיצול נסיעות",
+    "requirement": "לפי צורך",
+    "owner": "יועץ מקצועי",
+    "predecessor": "2.4/נתונים",
+    "deliverable": "ניתוח ביקושים",
+    "next": "להחליט נדרש/לא נדרש",
+    "products": []
+  },
+  {
+    "id": "2.9",
+    "stage": 2,
+    "task": "בטיחות וחניה",
+    "requirement": "חובה/לפי צורך",
+    "owner": "יועץ מקצועי",
+    "predecessor": "1.3",
+    "deliverable": "אבחון בטיחות",
+    "next": "להשלים מוקדי סיכון וחניה",
+    "products": []
+  },
+  {
+    "id": "2.10",
+    "stage": 2,
+    "task": "ניתוח תכניות מקודמות",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "1.4,2.3",
+    "deliverable": "מטריצת השפעות",
+    "next": "לבחון כל תכנית מול המרחב",
+    "products": []
+  },
+  {
+    "id": "2.11",
+    "stage": 2,
+    "task": "אינטגרציה, פערים והזדמנויות",
+    "requirement": "חובה",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "2.5–2.10",
+    "deliverable": "אבחון משולב",
+    "next": "לגבש מסקנות ומוקדי התערבות",
+    "products": []
+  },
+  {
+    "id": "M2.8",
+    "stage": 2,
+    "task": "סיום שלב הניתוח",
+    "requirement": "אבן דרך",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "2.11",
+    "deliverable": "אישור שלב 2",
+    "next": "לאשר מעבר להצעות",
+    "products": []
+  },
+  {
+    "id": "3.1",
+    "stage": 3,
+    "task": "גיבוש עקרונות התכנון",
+    "requirement": "חובה",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "M2.8",
+    "deliverable": "עקרונות מאושרים",
+    "next": "לתרגם פערים למטרות פעולה",
+    "products": []
+  },
+  {
+    "id": "3.2",
+    "stage": 3,
+    "task": "רחובות וחיבורים חדשים",
+    "requirement": "לפי צורך",
+    "owner": "יועץ מקצועי",
+    "predecessor": "3.1",
+    "deliverable": "תשריט הצעות",
+    "next": "לגבש הצעות ולבדוק ישימות",
+    "products": []
+  },
+  {
+    "id": "3.6",
+    "stage": 3,
+    "task": "פתרונות הליכה, מדרכות ומעברים",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "2.6",
+    "deliverable": "סל פתרונות",
+    "next": "לפרט פתרונות לפי רחוב",
+    "products": []
+  },
+  {
+    "id": "3.9",
+    "stage": 3,
+    "task": "גישור טופוגרפי וממשקי רק״ל",
+    "requirement": "לפי צורך",
+    "owner": "יועץ מקצועי",
+    "predecessor": "2.5,2.6",
+    "deliverable": "חלופות גישור",
+    "next": "לבחור פתרונות לסל",
+    "products": []
+  },
+  {
+    "id": "3.10",
+    "stage": 3,
+    "task": "רשת אופניים מוצעת",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "2.6",
+    "deliverable": "תשריט אופניים",
+    "next": "להשלים רשת מוצעת",
+    "products": []
+  },
+  {
+    "id": "3.11",
+    "stage": 3,
+    "task": "פתרונות תחבורה ציבורית",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "2.7",
+    "deliverable": "רשת תח״צ מומלצת",
+    "next": "לסגור חלופות קווים",
+    "products": []
+  },
+  {
+    "id": "3.13A",
+    "stage": 3,
+    "task": "חתכים קונספטואליים",
+    "requirement": "לפי צורך",
+    "owner": "יועץ מקצועי",
+    "predecessor": "3.2",
+    "deliverable": "חתכים לבחינת פתרון",
+    "next": "להשלים חתכים קריטיים",
+    "products": []
+  },
+  {
+    "id": "3.14",
+    "stage": 3,
+    "task": "גיבוש והשוואת חלופות",
+    "requirement": "לפי צורך",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "3.2–3.13A",
+    "deliverable": "חלופה מועדפת",
+    "next": "לקבע בחירות ולהעביר חלופות לנספח",
+    "products": []
+  },
+  {
+    "id": "3.16",
+    "stage": 3,
+    "task": "בדיקת ישימות ותנאי מימוש",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "3.2–3.14",
+    "deliverable": "סטטוס ישימות",
+    "next": "לבדוק סטטוטוריקה, זכות דרך והנדסה",
+    "products": []
+  },
+  {
+    "id": "3.17",
+    "stage": 3,
+    "task": "תשריט הצעות משולב",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "3.2–3.16",
+    "deliverable": "תשריט מסכם",
+    "next": "להפיק גרסה ל-QA",
+    "products": []
+  },
+  {
+    "id": "M3.4",
+    "stage": 3,
+    "task": "אישור ההצעות",
+    "requirement": "אבן דרך",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "3.17",
+    "deliverable": "הצעות מאושרות",
+    "next": "לעבור לשלב תוצרים",
+    "products": []
+  },
+  {
+    "id": "4.1",
+    "stage": 4,
+    "task": "קיבוע סל הפרויקטים",
+    "requirement": "חובה",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "M3.4",
+    "deliverable": "סל מאושר",
+    "next": "לסווג המלצה/פרויקט/מדיניות",
+    "products": []
+  },
+  {
+    "id": "4.2",
+    "stage": 4,
+    "task": "מספור ו-Project_ID אחיד",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "4.1",
+    "deliverable": "קודים אחידים",
+    "next": "להקצות מזהה יציב",
+    "products": []
+  },
+  {
+    "id": "4.3",
+    "stage": 4,
+    "task": "טבלת הפרויקטים",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "4.1,4.2",
+    "deliverable": "טבלת פרויקטים",
+    "next": "להשלים שורה לכל Project_ID",
+    "products": []
+  },
+  {
+    "id": "4.4",
+    "stage": 4,
+    "task": "כרטיסי ומצגת פרויקטים",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "4.3",
+    "deliverable": "מצגת פרויקטים",
+    "next": "להשלים הצדקות וקישורים",
+    "products": []
+  },
+  {
+    "id": "4.5",
+    "stage": 4,
+    "task": "חתכי רחוב סופיים",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "4.1,M3.4",
+    "deliverable": "חתכים סופיים",
+    "next": "לבחור חתכים לתיק הפרויקט",
+    "products": []
+  },
+  {
+    "id": "4.6",
+    "stage": 4,
+    "task": "GIS מצב מוצע",
+    "requirement": "חובה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "4.2,4.3",
+    "deliverable": "שכבות GIS",
+    "next": "לקשר Project_ID ו-GIS_ID",
+    "products": []
+  },
+  {
+    "id": "4.7",
+    "stage": 4,
+    "task": "בקרת תב״עות מקודמות",
+    "requirement": "חובה",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "4.1",
+    "deliverable": "חוות דעת ומעקב",
+    "next": "לנסח דרישות לתכניות",
+    "products": []
+  },
+  {
+    "id": "4.9",
+    "stage": 4,
+    "task": "QA טבלה ↔ GIS ↔ מצגת ↔ תשריט",
+    "requirement": "חובה",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "4.2–4.7",
+    "deliverable": "בקרת עקביות",
+    "next": "לסגור קודים, שמות ומיקום",
+    "products": []
+  },
+  {
+    "id": "M4.7",
+    "stage": 4,
+    "task": "אישור התוצרים הסופיים",
+    "requirement": "אבן דרך",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "4.9",
+    "deliverable": "חבילה מאושרת",
+    "next": "להעביר להטמעה",
+    "products": []
+  },
+  {
     "id": "5.1",
     "stage": 5,
     "task": "תכנית הטמעה ומסלולי יישום",
     "requirement": "חובה",
-    "decision": "נדרש",
     "owner": "מנהלת הפרויקט",
-    "products": [
-      "מטריצת הטמעה"
-    ]
+    "predecessor": "M4.7",
+    "deliverable": "מטריצת הטמעה",
+    "next": "לשייך גורם מקדם וחסם",
+    "products": []
   },
   {
     "id": "5.2",
     "stage": 5,
     "task": "הטמעה בדאשבורד",
     "requirement": "חובה",
-    "decision": "נדרש",
     "owner": "מנהלת הפרויקט",
-    "products": [
-      "דאשבורד"
-    ]
+    "predecessor": "5.1",
+    "deliverable": "דאשבורד תכניות",
+    "next": "להעביר GIS וטבלאות לדאשבורד",
+    "products": []
   },
   {
     "id": "5.3",
     "stage": 5,
-    "task": "הטמעה באפליקציית פרויקטור עירייה",
+    "task": "הטמעה באפליקציית פרויקטור עירייה (אם רלוונטי)",
     "requirement": "לפי צורך",
-    "decision": "טרם הוחלט",
     "owner": "מנהלת הפרויקט",
-    "products": [
-      "פרויקטור עירייה"
-    ]
+    "predecessor": "5.1",
+    "deliverable": "הזנה לאפליקציה",
+    "next": "לבחון רלוונטיות ולהחליט נדרש/לא נדרש",
+    "products": []
   },
   {
     "id": "5.4",
     "stage": 5,
-    "task": "רשתות אסטרטגיות תח״צ, מסופים ונת״צים",
+    "task": "רשתות אסטרטגיות: תח״צ, מסופים ונת״צים",
     "requirement": "לפי צורך",
-    "decision": "טרם הוחלט",
     "owner": "רפרנט מקצועי",
-    "products": [
-      "רשת תח״צ אסטרטגית"
-    ]
+    "predecessor": "5.1",
+    "deliverable": "רשת תח״צ אסטרטגית",
+    "next": "להעביר את הרשתות המומלצות",
+    "products": []
   },
   {
     "id": "5.5",
     "stage": 5,
     "task": "הטמעה בתכנית אב לרכיבה",
     "requirement": "לפי צורך",
-    "decision": "טרם הוחלט",
     "owner": "רפרנט מקצועי",
-    "products": [
-      "תכנית אב לרכיבה"
-    ]
+    "predecessor": "5.1",
+    "deliverable": "תכנית אב לרכיבה",
+    "next": "להעביר את רשת האופניים המוצעת",
+    "products": []
   },
   {
     "id": "5.6",
     "stage": 5,
-    "task": "תכנית אסטרטגית לגישור טופוגרפי",
+    "task": "הטמעה בתכנית אסטרטגית לגישור טופוגרפי",
     "requirement": "לפי צורך",
-    "decision": "טרם הוחלט",
     "owner": "רפרנט מקצועי",
-    "products": [
-      "גישור טופוגרפי"
-    ]
+    "predecessor": "5.1",
+    "deliverable": "תכנית גישור טופוגרפי",
+    "next": "להעביר את פתרונות הגישור",
+    "products": []
   },
   {
     "id": "5.7",
     "stage": 5,
     "task": "העברת מסמך חוות דעת מסכם לתב״עות",
     "requirement": "לפי צורך",
-    "decision": "טרם הוחלט",
     "owner": "מנהלת הפרויקט",
-    "products": [
-      "חוות דעת לתב״עות"
-    ]
+    "predecessor": "4.7,5.1",
+    "deliverable": "חוות דעת מסכמת",
+    "next": "להעביר חוות דעת ולעקוב",
+    "products": []
+  },
+  {
+    "id": "5.8",
+    "stage": 5,
+    "task": "העברת פרויקטים לקידום",
+    "requirement": "חובה",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "5.1",
+    "deliverable": "גורם מקדם לכל פרויקט",
+    "next": "לשייך בעלים ומסלול",
+    "products": []
+  },
+  {
+    "id": "5.9",
+    "stage": 5,
+    "task": "הטמעת המלצות שאינן פרויקט",
+    "requirement": "חובה",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "5.1",
+    "deliverable": "מעקב המלצות",
+    "next": "לשייך גורם עירוני",
+    "products": []
+  },
+  {
+    "id": "M5.9",
+    "stage": 5,
+    "task": "העברה למעקב שוטף",
+    "requirement": "אבן דרך",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "5.2–5.9",
+    "deliverable": "פתיחת תחזוקה",
+    "next": "לעבור לשלב 6",
+    "products": []
   },
   {
     "id": "6.1",
     "stage": 6,
-    "task": "עדכון סטטוס פרויקטים",
+    "task": "פתיחת מחזור תחזוקה",
     "requirement": "חובה",
-    "decision": "נדרש",
     "owner": "מנהלת הפרויקט",
-    "products": [
-      "טבלת סטטוסים"
-    ]
+    "predecessor": "M5.9",
+    "deliverable": "מחזור פעיל",
+    "next": "לקבוע תכולת עדכון",
+    "products": []
   },
   {
     "id": "6.2",
     "stage": 6,
-    "task": "רענון התוצרים בהתאם",
-    "requirement": "לפי צורך",
-    "decision": "טרם הוחלט",
+    "task": "עדכון סטטוס פרויקטים וחסמים",
+    "requirement": "חובה",
     "owner": "מנהלת הפרויקט",
-    "products": [
-      "תוצרים מעודכנים"
-    ]
+    "predecessor": "6.1",
+    "deliverable": "טבלת סטטוסים",
+    "next": "לעדכן פעולה הבאה לכל פרויקט",
+    "products": []
   },
   {
     "id": "6.3",
     "stage": 6,
-    "task": "כתיבת חוות דעת לתכניות במרחב",
-    "requirement": "לפי צורך",
-    "decision": "טרם הוחלט",
-    "owner": "רפרנט מקצועי",
-    "products": [
-      "חוות דעת"
-    ]
+    "task": "מעקב תכניות סטטוטוריות",
+    "requirement": "חובה",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "6.1",
+    "deliverable": "מאגר תכניות",
+    "next": "לאתר תכניות חדשות ולעדכן סטטוס",
+    "products": []
   },
   {
     "id": "6.4",
     "stage": 6,
-    "task": "בחינת צורך בעדכון מהותי / גרסה ב׳",
+    "task": "רענון התוצרים: טבלה, GIS, קישורים ודאשבורד",
     "requirement": "חובה",
-    "decision": "טרם הוחלט",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "6.2,6.3",
+    "deliverable": "בסיס נתונים מעודכן",
+    "next": "לבצע QA סינכרוני",
+    "products": []
+  },
+  {
+    "id": "6.4A",
+    "stage": 6,
+    "task": "כתיבת חוות דעת לתכניות במרחב",
+    "requirement": "לפי צורך",
     "owner": "רפרנט מקצועי",
+    "predecessor": "6.3",
+    "deliverable": "חוות דעת",
+    "next": "לכתוב חוות דעת לפי תכניות חדשות במרחב",
+    "products": []
+  },
+  {
+    "id": "6.5",
+    "stage": 6,
+    "task": "החלטה אם נדרש עדכון מהותי (גרסה ב׳)",
+    "requirement": "חובה",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "6.2–6.4",
+    "deliverable": "Decision Gate",
+    "next": "להחליט אם לפתוח גרסה ב׳ ולעבור על הצ׳קליסט",
+    "products": []
+  },
+  {
+    "id": "6.6",
+    "stage": 6,
+    "task": "עדכון נקודתי / גרסה ב׳",
+    "requirement": "מותנה",
+    "owner": "יועץ מקצועי",
+    "predecessor": "6.5",
+    "deliverable": "גרסה מעודכנת",
+    "next": "לעבור על שלבים 0–4 ולהחליט נדרש/לא נדרש לכל רכיב",
+    "products": []
+  },
+  {
+    "id": "6.7",
+    "stage": 6,
+    "task": "עדכון תיעדוף, חומשים ויעדים",
+    "requirement": "חובה",
+    "owner": "רפרנט מקצועי",
+    "predecessor": "6.2–6.6",
+    "deliverable": "תיעדוף מעודכן",
+    "next": "לעדכן חומש, חסם ויעד",
+    "products": []
+  },
+  {
+    "id": "M6.Q",
+    "stage": 6,
+    "task": "עדכון רבעוני הושלם",
+    "requirement": "אבן דרך מחזורית",
+    "owner": "מנהלת הפרויקט",
+    "predecessor": "6.4,6.7",
+    "deliverable": "דאשבורד מעודכן",
+    "next": "לפתוח מחזור הבא",
     "products": []
   }
 ]

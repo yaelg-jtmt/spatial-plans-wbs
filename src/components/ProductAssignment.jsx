@@ -5,13 +5,12 @@ export default function ProductAssignment({ values, onChange }) {
     if (value === "לא") onChange([]);
     if (value === "כן" && !linked) onChange([""]);
   };
-  const updateProduct = (index, value) =>
-    onChange(values.map((p, i) => (i === index ? value : p)));
+  const updateProduct = (index, value) => onChange(values.map((p, i) => (i === index ? value : p)));
   const addProduct = () => onChange([...values, ""]);
   const removeProduct = (index) => onChange(values.filter((_, i) => i !== index));
 
   return (
-    <div className="min-w-[300px] space-y-2">
+    <div className="min-w-[280px] space-y-2">
       <select
         value={linked ? "כן" : "לא"}
         onChange={(e) => setLinked(e.target.value)}
@@ -31,11 +30,7 @@ export default function ProductAssignment({ values, onChange }) {
                 className="w-full rounded-lg border bg-white px-2 py-2"
                 placeholder="שם התוצר"
               />
-              <button
-                type="button"
-                onClick={() => removeProduct(index)}
-                className="rounded-lg border bg-white px-2 py-2 text-xs text-red-600"
-              >
+              <button type="button" onClick={() => removeProduct(index)} className="rounded-lg border bg-white px-2 py-2 text-xs text-red-600">
                 הסר
               </button>
             </div>
