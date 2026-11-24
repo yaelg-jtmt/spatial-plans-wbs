@@ -1,15 +1,14 @@
-// שימוש:
-//   node scripts/prepare-dashboard.mjs "<נתיב>/דאשבורד_תכניות_מרחביות_G5.html"
-//
-// מה הסקריפט עושה:
+// שימוש:  node scripts/prepare-dashboard.mjs "<נתיב>/דאשבורד_תכניות_מרחביות_G5.html"
 //  1. מעתיק את הדאשבורד אל public/dashboard/index.html
 //  2. מוציא מפתחות ו-ID של תיקיית Drive אל public/dashboard/config.js (מוחרג מ-Git)
 //  3. מסיר את בלוק המטא-דאטה של SharePoint (כתובת פנימית של הארגון)
-//  4. מוסיף <script src="config.js"> לפני שאר הסקריפטים ו-<script src="bridge.js"> לפני </body>
-// ההרצה בטוחה לחזרה: אפשר להריץ שוב על קובץ מקור חדש.
+//  4. מסתיר את חלון "טעינת שכבות ומצגת" ומזריק טעינה של שכבות ומצגות מקבצי האתר (scripts/dashboard-patch.mjs)
+//  5. מוסיף <script src="config.js"> לפני שאר הסקריפטים ו-<script src="bridge.js"> לפני </body>
+// בטוח להרצה חוזרת על קובץ מקור חדש.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { patchDashboard } from "./dashboard-patch.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const src = process.argv[2];
@@ -19,15 +18,9 @@ if (!src || !existsSync(src)) {
 }
 
 let html = readFileSync(src, "utf8");
-const log = [];
-const warn = [];
+const log = [], warn = [];
 
-// 1) הוצאת קבועים רגישים -> window.DASHBOARD_CONFIG
-const CONSTS = [
-  ["CARTO_KEY", "cartoKey"],
-  ["GOOGLE_API_KEY", "googleApiKey"],
-  ["DRIVE_FOLDER_ID", "driveFolderId"],
-];
+const CONSTS = [["CARTO_KEY", "cartoKey"], ["GOOGLE_API_KEY", "googleApiKey"], ["DRIVE_FOLDER_ID", "driveFolderId"]];
 const config = {};
 for (const [name, prop] of CONSTS) {
   const re = new RegExp(`\\b(const|let|var)\\s+${name}\\s*=\\s*(['"\`])([^'"\`]*)\\2`);
@@ -38,12 +31,13 @@ for (const [name, prop] of CONSTS) {
   log.push(`הוצא ${name} -> config.js (${prop})`);
 }
 
-// 2) הסרת בלוק SharePoint (תנאי mso עם כתובת פנימית)
 const msoRe = /<!--\[if gte mso 9\]>[\s\S]*?<!\[endif\]-->/g;
 if (msoRe.test(html)) { html = html.replace(msoRe, ""); log.push("הוסר בלוק מטא-דאטה של SharePoint"); }
 html = html.replace(/\sxmlns:mso="[^"]*"/, "").replace(/\sxmlns:msdt="[^"]*"/, "");
 
-// 3) הזרקת config.js לפני הסקריפט הראשון, ו-bridge.js לפני </body>
+const patched = patchDashboard(html);
+html = patched.html; log.push(...patched.log); warn.push(...patched.warn);
+
 if (!/src=["']config\.js["']/.test(html)) {
   const i = html.search(/<script\b/i);
   if (i < 0) { console.error("❌ לא נמצאו תגי <script> בקובץ"); process.exit(1); }
@@ -57,23 +51,15 @@ if (!/src=["']bridge\.js["']/.test(html)) {
   log.push("נוסף bridge.js");
 }
 
-// 4) בדיקות תקינות
 if (!/id=["']planSel["']/.test(html)) warn.push('לא נמצא #planSel, ה-bridge לא יוכל לסנכרן תכניות');
 for (const k of ["AIza", "cb1_"]) if (html.includes(k)) warn.push(`עדיין נראה שיש מפתח בקוד (התחלה: ${k}…)`);
 
-// 5) כתיבה
 const out = resolve(root, "public/dashboard");
 mkdirSync(out, { recursive: true });
 writeFileSync(resolve(out, "index.html"), html);
-const cfgText =
-  "// נוצר אוטומטית. מוחרג מ-Git. ב-CI נוצר מ-GitHub Secrets.\n" +
-  "window.DASHBOARD_CONFIG = " + JSON.stringify(config, null, 2) + ";\n";
-writeFileSync(resolve(out, "config.js"), cfgText);
-writeFileSync(
-  resolve(out, "config.example.js"),
-  "// העתיקי ל-config.js ומלאי ערכים. config.js לא נכנס ל-Git.\n" +
-  'window.DASHBOARD_CONFIG = { cartoKey: "", googleApiKey: "", driveFolderId: "" };\n'
-);
+writeFileSync(resolve(out, "config.js"), "// נוצר אוטומטית. מוחרג מ-Git. ב-CI נוצר מ-GitHub Secrets.\nwindow.DASHBOARD_CONFIG = " + JSON.stringify(config, null, 2) + ";\n");
+writeFileSync(resolve(out, "config.example.js"), "// העתיקי ל-config.js ומלאי ערכים. config.js לא נכנס ל-Git.\nwindow.DASHBOARD_CONFIG = { cartoKey: \"\", googleApiKey: \"\", driveFolderId: \"\" };\n");
 
 console.log("✅ public/dashboard/index.html נוצר\n" + log.map((l) => " - " + l).join("\n"));
 if (warn.length) console.log("\n⚠️ לבדיקה:\n" + warn.map((w) => " - " + w).join("\n"));
+console.log("\nהשלב הבא: npm run dev ופתיחת /tools/sync-test.html לבדיקת הסנכרון.");
