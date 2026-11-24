@@ -3,7 +3,8 @@
 //   node scripts/build-sections.mjs          בנייה + בדיקות (נכשל אם יש שגיאה)
 //   node scripts/build-sections.mjs --check  בדיקה בלבד, בלי כתיבה (גם משמש את npm test)
 // עמודות ב-CSV (שמירה מאקסל כ-"CSV UTF-8"): תכנית, רחוב, מקטע, מצב (קיים/מוצע), חלופה, קובץ תמונה, רוחב זכות דרך (מ'),
-// הערה קצרה (מוצגת בפופאפ), קוד פרויקט / GIS (אופציונלי), הערת בדיקה (פנימי) (לא מוצגת).
+// הערה קצרה (מוצגת בפופאפ), קוד פרויקט / GIS (אופציונלי), תווית (אופציונלי: שם החתך המוצע בכפתור, למשל "מקטע A"),
+// הערת בדיקה (פנימי) (לא מוצגת).
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -64,8 +65,8 @@ export function buildSections({ csvFiles, imagesDir, aliases = {}, codes = {} })
         if (st.existing) errors.push(`${where}: לרחוב ${id} יש יותר מחתך קיים אחד`); else st.existing = item;
       } else {
         const digit = (code || "").replace(/\D/g, "");
-        const alt = r["חלופה"];
-        item.label = alt ? `חלופה ${alt}` + (digit ? ` – חתך ${digit}` : "") : `חלופה ${st.proposed.length + 1}`;
+        const alt = r["חלופה"], custom = (r["תווית"] || "").trim();
+        item.label = custom || (alt ? `חלופה ${alt}` + (digit ? ` – חתך ${digit}` : "") : `חלופה ${st.proposed.length + 1}`);
         st.proposed.push(item);
       }
     });

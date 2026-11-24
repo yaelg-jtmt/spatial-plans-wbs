@@ -25,13 +25,18 @@ function sxHasAlias(text, alias) {
   }
   return false;
 }
-// codes (אם הוגדרו לרחוב) הם הקובעים. אחרת: שירות מסוג רחוב + כינוי בשם הפרויקט בלבד.
+// codes (אם הוגדרו לרחוב) הם הקובעים, והם יכולים להיות קוד GIS (למשל 2-9 בגילה) או מספר פרויקט (למשל 203 בארמון הנציב).
+// אחרת: שירות מסוג רחוב + כינוי בשם הפרויקט בלבד.
 // תיאור הפרויקט לא משמש להתאמה: הוא מזכיר רחובות סמוכים כנקודות ייחוס ("הנגבי - מחלף דב יוסף") וגרם להתאמות שגויות.
 function sxMatch(manifest, p) {
   const plan = sxNorm(p.plan), out = [];
   for (const st of (manifest && manifest.streets) || []) {
     if (sxNorm(st.plan) !== plan) continue;
-    if (st.codes && st.codes.length) { if (p.code && st.codes.map(String).includes(String(p.code))) out.push(st); continue; }
+    if (st.codes && st.codes.length) {
+      const ids = [p.code, p.num].filter(v => v !== null && v !== undefined && String(v).trim() !== '').map(v => String(v).trim());
+      if (ids.some(i => st.codes.map(String).includes(i))) out.push(st);
+      continue;
+    }
     if (!SX_STREET_SERVICES.includes(p.service)) continue;
     if ((st.aliases || []).some(a => sxHasAlias(p.name || '', a))) out.push(st);
   }

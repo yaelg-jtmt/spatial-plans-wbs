@@ -1,1 +1,44 @@
-{}
+{
+  "AH_gruner": [
+    "203",
+    "403"
+  ],
+  "AH_benyosef": [
+    "404"
+  ],
+  "AH_kashani": [
+    "205"
+  ],
+  "AH_hakim": [
+    "206",
+    "406"
+  ],
+  "AH_ravhovel": [
+    "207"
+  ],
+  "AH_anusi-meshhad": [
+    "416"
+  ],
+  "AH_adam": [
+    "417"
+  ],
+  "AH_elkahi": [
+    "418"
+  ],
+  "AH_haviv": [
+    "419"
+  ],
+  "AH_nakar": [
+    "420"
+  ],
+  "AH_olei-hagardom": [
+    "201",
+    "301",
+    "401"
+  ],
+  "AH_barzani": [
+    "202",
+    "302",
+    "402"
+  ]
+}

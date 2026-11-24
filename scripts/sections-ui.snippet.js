@@ -5,7 +5,7 @@ const sxUrl = rel => new URL('../data/sections/' + rel, location.href).href;
   const css = document.createElement('style');
   css.textContent = '.sx-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0}@media(max-width:560px){.sx-grid{grid-template-columns:1fr}}'
     + '.sx-fig{margin:0;border:1px solid var(--rule,#ccc);border-radius:8px;background:#fff;overflow:hidden}'
-    + '.sx-fig figcaption{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:5px 8px;background:var(--paper,#f6f6f6);font-size:13px;color:var(--muted,#555);border-bottom:1px solid var(--rule,#ccc)}'
+    + '.sx-fig figcaption{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;padding:5px 8px;background:var(--paper,#f6f6f6);font-size:13px;color:var(--muted,#555);border-bottom:1px solid var(--rule,#ccc)}'
     + '.sx-img{display:block;width:100%;height:auto;cursor:zoom-in;background:#fff}.sx-alts{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}'
     + '.sx-dlg{width:min(96vw,1500px);max-height:94vh;padding:0;border:1px solid var(--rule,#ccc);border-radius:10px;background:var(--paper,#fff);color:inherit}.sx-dlg::backdrop{background:rgba(0,0,0,.45)}'
     + '.sx-dlg .sx-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--rule,#ccc)}.sx-dlg .sx-body{padding:12px 14px;overflow:auto;max-height:calc(94vh - 60px)}'

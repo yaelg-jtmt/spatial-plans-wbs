@@ -20,7 +20,7 @@ export function projectsFromLayers(layersManifest, root = ".") {
       const code = String(a.gis_code || a.kod_z || "").trim();
       if (!code) continue;
       const key = L.plan + "|" + code;
-      if (!byKey.has(key)) byKey.set(key, { plan: L.plan, code, name: a.descr || a.shem_p || a.pirut || "", desc: a.pirut || "", service: a.ptype || a.sug_sh || a.mahut || "", sub: a.sub || "" });
+      if (!byKey.has(key)) byKey.set(key, { plan: L.plan, code, num: a.proj_num !== undefined && a.proj_num !== "" && !isNaN(+a.proj_num) && +a.proj_num !== 0 ? +a.proj_num : null, name: a.descr || a.shem_p || a.pirut || "", desc: a.pirut || "", service: a.ptype || a.sug_sh || a.mahut || "", sub: a.sub || "" });
     }
   }
   return [...byKey.values()];

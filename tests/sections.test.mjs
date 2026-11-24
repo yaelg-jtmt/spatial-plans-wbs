@@ -1,7 +1,7 @@
 // בדיקות לפופאפ חתכי הרחוב: התאמת פרויקט לרחוב, בניית sections.json מה-CSV, דוח ההתאמות, וההזרקה לדאשבורד.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { sxHasAlias, sxMatch } from "../scripts/sections-core.mjs";
@@ -117,22 +117,26 @@ test("בנייה: כינויים מחושבים מהשם ומקובץ aliases, �
 });
 
 // ---------- הנתונים בריפו ----------
-test("נתוני גילה: sections.json תואם ל-CSV ואין שגיאות או אזהרות", () => {
+test("נתוני החתכים: sections.json תואם ל-CSV, ללא שגיאות, והאזהרות היחידות הן 5 רחובות מקומיים בארמון הנציב שאין להם חתך קיים", () => {
   const { manifest, errors, warnings } = loadAndBuild(ROOT);
-  assert.deepEqual(errors, []); assert.deepEqual(warnings, []);
+  assert.deepEqual(errors, []);
+  assert.deepEqual(warnings.sort(), ["AH_adam", "AH_anusi-meshhad", "AH_elkahi", "AH_haviv", "AH_nakar"].map((id) => `${id}: אין חתך קיים`).sort());
   assert.equal(readFileSync(join(ROOT, "public/data/sections/sections.json"), "utf8"), JSON.stringify(manifest, null, 2) + "\n", "הריצי: node scripts/build-sections.mjs");
 });
 test("נתוני גילה: 9 רחובות, לכל אחד חתך קיים ולפחות חלופה אחת, ו-30 תמונות", () => {
-  const { streets } = JSON.parse(readFileSync(join(ROOT, "public/data/sections/sections.json"), "utf8"));
+  const streets = JSON.parse(readFileSync(join(ROOT, "public/data/sections/sections.json"), "utf8")).streets.filter((x) => x.plan === "גילה");
   assert.equal(streets.length, 9);
   let n = 0;
-  for (const s of streets) { assert.ok(s.existing, s.id); assert.ok(s.proposed.length >= 1, s.id); assert.equal(s.plan, "גילה"); n += 1 + s.proposed.length; }
+  for (const s of streets) { assert.ok(s.existing, s.id); assert.ok(s.proposed.length >= 1, s.id); n += 1 + s.proposed.length; }
   assert.equal(n, 30);
   assert.deepEqual(streets.map((s) => s.proposed.length).sort(), [2, 2, 2, 2, 2, 2, 3, 3, 3]);   // 21 חלופות + 9 חתכים קיימים
 });
-test("תמונות: PNG אמיתי, רוחב סביר, ועד 300KB", () => {
+test("תמונות (כל התכניות): PNG אמיתי, רוחב סביר, ועד 300KB, וכל קובץ בתיקייה משויך לרחוב", () => {
   const { streets } = JSON.parse(readFileSync(join(ROOT, "public/data/sections/sections.json"), "utf8"));
-  for (const s of streets) for (const it of [s.existing, ...s.proposed]) {
+  const used = new Set(streets.flatMap((s) => [s.existing, ...s.proposed]).filter(Boolean).map((i) => i.file));
+  const onDisk = readdirSync(join(ROOT, "public/data/sections/images")).filter((f) => f.endsWith(".png"));
+  assert.deepEqual(onDisk.filter((f) => !used.has(f)), [], "קבצי תמונה שלא משויכים לאף רחוב ב-CSV");
+  for (const s of streets) for (const it of [s.existing, ...s.proposed].filter(Boolean)) {
     const f = join(ROOT, "public/data/sections/images", it.file);
     assert.ok(existsSync(f), it.file);
     const b = readFileSync(f);
@@ -246,4 +250,69 @@ test("גילה ב–ה: 30 שמות אמיתיים מהדוח (רחובות שא
     "שביל אופניים על כביש חדש מוצע מרחוב המרגלית לתירוש", "מיתון תנועה ברחוב שרפאת", "שדרוג רחוב יעקב ברמן", "שדרוג רחוב פוצקי"];
   for (const service of ["שדרוג רחוב", "שביל אופניים", "רחוב חדש", "תנועה משולבת", "נתיב תחבורה ציבורית"])
     for (const name of names) assert.deepEqual(sxMatch(sec, P({ service, name })), [], `${service} | ${name}`);
+});
+
+// ---------- התאמה לפי מספר פרויקט (ארמון הנציב) ----------
+test("התאמה: מספר פרויקט (num) מזהה רחוב כמו קוד GIS, כמספר או כמחרוזת", () => {
+  const sec = SECT();
+  const ah = (o) => sxMatch(sec, { plan: "ארמון הנציב", code: "", service: "שדרוג רחוב", name: "x", ...o }).map((s) => s.id.replace("AH_", ""));
+  for (const [num, id] of [[203, "gruner"], ["403", "gruner"], [404, "benyosef"], [205, "kashani"], [206, "hakim"], [406, "hakim"], [207, "ravhovel"], [416, "anusi-meshhad"], [417, "adam"], [418, "elkahi"], [419, "haviv"], [420, "nakar"], [201, "olei-hagardom"], [301, "olei-hagardom"], [401, "olei-hagardom"], [202, "barzani"], [302, "barzani"], [402, "barzani"]])
+    assert.deepEqual(ah({ num }), [id], String(num));
+  assert.deepEqual(ah({ num: 999 }), []); assert.deepEqual(ah({ num: null }), []); assert.deepEqual(ah({ num: "" }), []);
+  assert.deepEqual(ah({ code: "203", num: null }), ["gruner"]);
+});
+test("התאמה לפי מספר: רק בתכנית הנכונה, ולא תלוי בשירות או בשם", () => {
+  const sec = SECT();
+  assert.deepEqual(sxMatch(sec, { plan: "גילה", num: 203, service: "שדרוג רחוב", name: "x" }), []);
+  assert.deepEqual(sxMatch(sec, { plan: "ארמון הנציב", num: 203, service: "אחר", name: "ללא שם רחוב" }).map((s) => s.id), ["AH_gruner"]);
+  assert.deepEqual(sxMatch(sec, { plan: "ארמון הנציב", num: 5, service: "שדרוג רחוב", name: "שדרוג רחוב גרונר" }), [], "לרחוב עם קודים השם לא קובע");
+  assert.deepEqual(sxMatch(sec, { plan: "גילה", code: "2-9", num: null, service: "שדרוג רחוב", name: "שדרוג רחוב המור" }).map((s) => s.id), ["GI_hamor"], "גילה ממשיכה להתאים לפי שם");
+});
+
+// ---------- נתוני ארמון הנציב ----------
+const AH = () => SECT().streets.filter((s) => s.plan === "ארמון הנציב");
+test("ארמון הנציב: 12 רחובות, 7 חתכים קיימים, 28 חתכים מוצעים (35 בסך הכול)", () => {
+  const ah = AH();
+  assert.equal(ah.length, 12);
+  assert.equal(ah.filter((s) => s.existing).length, 7);
+  assert.equal(ah.reduce((a, s) => a + s.proposed.length, 0), 28);
+  const noExisting = ah.filter((s) => !s.existing).map((s) => s.id.replace("AH_", "")).sort();
+  assert.deepEqual(noExisting, ["adam", "anusi-meshhad", "elkahi", "haviv", "nakar"]);
+});
+test("ארמון הנציב: כל רחוב מוגדר בקודי הפרויקט שבכרטיסי הרחוב של הדאשבורד", () => {
+  const codes = Object.fromEntries(AH().map((s) => [s.id.replace("AH_", ""), s.codes]));
+  assert.deepEqual(codes, { gruner: ["203", "403"], benyosef: ["404"], kashani: ["205"], hakim: ["206", "406"], ravhovel: ["207"], "anusi-meshhad": ["416"], adam: ["417"], elkahi: ["418"], haviv: ["419"], nakar: ["420"], "olei-hagardom": ["201", "301", "401"], barzani: ["202", "302", "402"] });
+});
+test("ארמון הנציב: תוויות המקטעים (מקטע A/B/C, חלופה מומלצת, שלב ביניים)", () => {
+  const by = Object.fromEntries(AH().map((s) => [s.id.replace("AH_", ""), s.proposed.map((a) => a.label)]));
+  assert.deepEqual(by.gruner, ["מקטע A", "מקטע B – לאחר התחדשות", "מקטע C – לאחר התחדשות"]);
+  assert.deepEqual(by.barzani, ["מקטע A", "מקטע B", "מקטע C"]);
+  assert.deepEqual(by.hakim, ["מקטע מזרחי", "מקטע מערבי"]);
+  assert.equal(by["olei-hagardom"].length, 8);
+  assert.match(by["olei-hagardom"][0], /חלופה מומלצת/);
+  assert.deepEqual(by["olei-hagardom"].map((l) => l.slice(0, 6)), ["מקטע A", "מקטע A", "מקטע B", "מקטע B", "מקטע C", "מקטע C", "מקטע D", "מקטע D"]);
+  assert.equal(by.benyosef[0], "חתך עקרוני מוצע");
+});
+test("ארמון הנציב: החתך המשותף לאנוסי משהד, אדם ואלקחי הוא אותה תמונה בשלושה קבצים נפרדים", () => {
+  const f = (id) => readFileSync(join(ROOT, "public/data/sections/images", AH().find((s) => s.id === id).proposed[0].file));
+  const [a, b, c] = ["AH_anusi-meshhad", "AH_adam", "AH_elkahi"].map(f);
+  assert.ok(a.equals(b) && b.equals(c));
+  assert.ok(!f("AH_haviv").equals(a) && !f("AH_nakar").equals(a));
+  const notes = ["AH_anusi-meshhad", "AH_adam", "AH_elkahi"].map((id) => AH().find((s) => s.id === id).proposed[0].note);
+  for (const n of notes) assert.match(n, /חתך משותף לרחובות אנוסי משהד, אדם ואלקחי/);
+});
+test("ארמון הנציב: הרוחב לא מוצג (הוא מופיע בתוך השרטוט), ולא מומצא", () => {
+  for (const s of AH()) for (const it of [s.existing, ...s.proposed].filter(Boolean)) assert.equal(it.width, null, it.file);
+});
+test("תווית מותאמת: מחליפה את 'חלופה N' רק כשצוינה, וגילה לא משתנה", () => {
+  const H2 = HEAD + ",תווית";
+  const mk = (rows, files) => buildSections({ csvFiles: [{ name: "T.csv", text: [H2, ...rows].join("\n") }], imagesDir: tmpImages(files) });
+  const r = mk(["ארמון הנציב,גרונר,כל הרחוב,קיים,,AH_g_existing.png,,,,", "ארמון הנציב,גרונר,A,מוצע,,AH_g_A_proposed.png,,,203,מקטע A", "ארמון הנציב,גרונר,B,מוצע,,AH_g_B_proposed.png,,,,", "ארמון הנציב,גרונר,C,מוצע,ג,AH_g_C_proposed.png,,,,"],
+    ["AH_g_existing.png", "AH_g_A_proposed.png", "AH_g_B_proposed.png", "AH_g_C_proposed.png"]);
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.manifest.streets[0].proposed.map((a) => a.label), ["מקטע A", "חלופה 2", "חלופה ג – חתך"].map((x, i) => (i === 2 ? "חלופה ג" : x)));
+  assert.deepEqual(r.manifest.streets[0].codes, ["203"]);
+  // בלי עמודת תווית בכלל (כמו בקבצי גילה) התוויות כמקודם
+  const g = build(["גילה,המור,A,מוצע,א,GI_hamor_A_proposed.png,24,,", "גילה,המור,B,מוצע,ב,GI_hamor_B_proposed.png,25,,"], ["GI_hamor_A_proposed.png", "GI_hamor_B_proposed.png"]);
+  assert.deepEqual(g.manifest.streets[0].proposed.map((a) => a.label), ["חלופה א", "חלופה ב"]);
 });

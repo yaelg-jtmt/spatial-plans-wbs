@@ -1,6 +1,377 @@
 {
   "streets": [
     {
+      "id": "AH_haviv",
+      "plan": "ארמון הנציב",
+      "name": "אבשלום חביב",
+      "aliases": [
+        "אבשלום חביב"
+      ],
+      "codes": [
+        "419"
+      ],
+      "existing": null,
+      "proposed": [
+        {
+          "file": "AH_haviv_proposed.png",
+          "width": null,
+          "note": "רחוב מקומי ורכיבה משותפת, מהירות עד 30 קמ\"ש",
+          "label": "חתך מוצע – רחוב מקומי ורכיבה משותפת"
+        }
+      ]
+    },
+    {
+      "id": "AH_adam",
+      "plan": "ארמון הנציב",
+      "name": "אדם",
+      "aliases": [
+        "אדם"
+      ],
+      "codes": [
+        "417"
+      ],
+      "existing": null,
+      "proposed": [
+        {
+          "file": "AH_adam_proposed.png",
+          "width": null,
+          "note": "רחוב מקומי ורכיבה משותפת, מהירות עד 30 קמ\"ש. חתך משותף לרחובות אנוסי משהד, אדם ואלקחי",
+          "label": "חתך מוצע – רחוב מקומי ורכיבה משותפת"
+        }
+      ]
+    },
+    {
+      "id": "AH_hakim",
+      "plan": "ארמון הנציב",
+      "name": "אליהו חכים",
+      "aliases": [
+        "אליהו חכים"
+      ],
+      "codes": [
+        "206",
+        "406"
+      ],
+      "existing": {
+        "file": "AH_hakim_existing.png",
+        "width": null,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "AH_hakim_E_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע מזרחי"
+        },
+        {
+          "file": "AH_hakim_W_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע מערבי"
+        }
+      ]
+    },
+    {
+      "id": "AH_kashani",
+      "plan": "ארמון הנציב",
+      "name": "אליעזר קשאני",
+      "aliases": [
+        "אליעזר קשאני"
+      ],
+      "codes": [
+        "205"
+      ],
+      "existing": {
+        "file": "AH_kashani_existing.png",
+        "width": null,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "AH_kashani_A_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע A"
+        },
+        {
+          "file": "AH_kashani_B_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע B"
+        },
+        {
+          "file": "AH_kashani_C_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע C – הרחבה ל-14.5 מ' בהתחדשות עירונית"
+        }
+      ]
+    },
+    {
+      "id": "AH_anusi-meshhad",
+      "plan": "ארמון הנציב",
+      "name": "אנוסי משהד",
+      "aliases": [
+        "אנוסי משהד"
+      ],
+      "codes": [
+        "416"
+      ],
+      "existing": null,
+      "proposed": [
+        {
+          "file": "AH_anusi-meshhad_proposed.png",
+          "width": null,
+          "note": "רחוב מקומי ורכיבה משותפת, מהירות עד 30 קמ\"ש. חתך משותף לרחובות אנוסי משהד, אדם ואלקחי",
+          "label": "חתך מוצע – רחוב מקומי ורכיבה משותפת"
+        }
+      ]
+    },
+    {
+      "id": "AH_gruner",
+      "plan": "ארמון הנציב",
+      "name": "דב גרונר",
+      "aliases": [
+        "דב גרונר"
+      ],
+      "codes": [
+        "203",
+        "403"
+      ],
+      "existing": {
+        "file": "AH_gruner_existing.png",
+        "width": null,
+        "note": "זכות דרך סטטוטורית 13 מ'"
+      },
+      "proposed": [
+        {
+          "file": "AH_gruner_A_proposed.png",
+          "width": null,
+          "note": "שצ\"פ 3 מ' לטובת המדרכה",
+          "label": "מקטע A"
+        },
+        {
+          "file": "AH_gruner_B_proposed.png",
+          "width": null,
+          "note": "הרחבה 5 מ' בדופן מערב",
+          "label": "מקטע B – לאחר התחדשות"
+        },
+        {
+          "file": "AH_gruner_C_proposed.png",
+          "width": null,
+          "note": "הרחבה 5 מ' מכל צד, מחוץ לזכות הדרך",
+          "label": "מקטע C – לאחר התחדשות"
+        }
+      ]
+    },
+    {
+      "id": "AH_nakar",
+      "plan": "ארמון הנציב",
+      "name": "מאיר נקר",
+      "aliases": [
+        "מאיר נקר"
+      ],
+      "codes": [
+        "420"
+      ],
+      "existing": null,
+      "proposed": [
+        {
+          "file": "AH_nakar_proposed.png",
+          "width": null,
+          "note": "רחוב מקומי ורכיבה משותפת, מהירות עד 30 קמ\"ש",
+          "label": "חתך מוצע – רחוב מקומי ורכיבה משותפת"
+        }
+      ]
+    },
+    {
+      "id": "AH_elkahi",
+      "plan": "ארמון הנציב",
+      "name": "מרדכי אלקחי",
+      "aliases": [
+        "מרדכי אלקחי"
+      ],
+      "codes": [
+        "418"
+      ],
+      "existing": null,
+      "proposed": [
+        {
+          "file": "AH_elkahi_proposed.png",
+          "width": null,
+          "note": "רחוב מקומי ורכיבה משותפת, מהירות עד 30 קמ\"ש. חתך משותף לרחובות אנוסי משהד, אדם ואלקחי",
+          "label": "חתך מוצע – רחוב מקומי ורכיבה משותפת"
+        }
+      ]
+    },
+    {
+      "id": "AH_barzani",
+      "plan": "ארמון הנציב",
+      "name": "משה ברזני",
+      "aliases": [
+        "משה ברזני"
+      ],
+      "codes": [
+        "202",
+        "302",
+        "402"
+      ],
+      "existing": {
+        "file": "AH_barzani_existing.png",
+        "width": null,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "AH_barzani_A_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע A"
+        },
+        {
+          "file": "AH_barzani_B_proposed.png",
+          "width": null,
+          "note": "הרחבת זכות דרך 3 מ' נדרשת",
+          "label": "מקטע B"
+        },
+        {
+          "file": "AH_barzani_C_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע C"
+        }
+      ]
+    },
+    {
+      "id": "AH_olei-hagardom",
+      "plan": "ארמון הנציב",
+      "name": "עולי הגרדום",
+      "aliases": [
+        "עולי הגרדום"
+      ],
+      "codes": [
+        "201",
+        "301",
+        "401"
+      ],
+      "existing": {
+        "file": "AH_olei-hagardom_existing.png",
+        "width": null,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "AH_olei-hagardom_A_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע A – חלופה מומלצת (הרחבה 2 מ' על חשבון שצ\"פ)"
+        },
+        {
+          "file": "AH_olei-hagardom_A2_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע A – ללא הרחבת זכות דרך"
+        },
+        {
+          "file": "AH_olei-hagardom_B_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע B – לאחר הרחבה ל-24 מ'"
+        },
+        {
+          "file": "AH_olei-hagardom_B2_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע B – שלב ביניים 21 מ'"
+        },
+        {
+          "file": "AH_olei-hagardom_C_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע C – ללא הרחבת זכות דרך"
+        },
+        {
+          "file": "AH_olei-hagardom_C2_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע C – הרחבה ל-21 מ'"
+        },
+        {
+          "file": "AH_olei-hagardom_D_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע D – לאחר הרחבה ל-24 מ'"
+        },
+        {
+          "file": "AH_olei-hagardom_D2_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע D – שלב ביניים 21 מ'"
+        }
+      ]
+    },
+    {
+      "id": "AH_ravhovel",
+      "plan": "ארמון הנציב",
+      "name": "רב החובל",
+      "aliases": [
+        "רב החובל"
+      ],
+      "codes": [
+        "207"
+      ],
+      "existing": {
+        "file": "AH_ravhovel_existing.png",
+        "width": null,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "AH_ravhovel_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "חתך מוצע"
+        }
+      ]
+    },
+    {
+      "id": "AH_benyosef",
+      "plan": "ארמון הנציב",
+      "name": "שלמה בן יוסף",
+      "aliases": [
+        "שלמה בן יוסף",
+        "בן יוסף"
+      ],
+      "codes": [
+        "404"
+      ],
+      "existing": {
+        "file": "AH_benyosef_existing.png",
+        "width": null,
+        "note": "זכות דרך סטטוטורית 14 מ'; רוחב אפקטיבי 23 מ'"
+      },
+      "proposed": [
+        {
+          "file": "AH_benyosef_P_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "חתך עקרוני מוצע"
+        },
+        {
+          "file": "AH_benyosef_A_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע A – שלב ביניים"
+        },
+        {
+          "file": "AH_benyosef_C_proposed.png",
+          "width": null,
+          "note": "",
+          "label": "מקטע C – אם לא מתאפשרת הרחבה נוספת"
+        }
+      ]
+    },
+    {
       "id": "GI_afarsemon",
       "plan": "גילה",
       "name": "אפרסמון",
