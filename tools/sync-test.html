@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><title>בדיקת סנכרון דאשבורד ↔ אתר</title>
+<style>
+ body{font-family:Assistant,Arial,sans-serif;margin:20px;background:#f8fafc;color:#0f172a}
+ table{border-collapse:collapse;width:100%;background:#fff;font-size:14px}
+ th,td{border:1px solid #e2e8f0;padding:6px 10px;text-align:right;vertical-align:top}
+ .PASS{background:#dcfce7}.FAIL{background:#fee2e2;font-weight:700}.SKIP{background:#fef9c3}
+ #sum{font-size:18px;font-weight:700;margin:10px 0}
+ iframe{width:100%;height:260px;border:1px solid #cbd5e1;margin-top:14px;background:#fff}
+ code{direction:ltr;unicode-bidi:embed}
+</style></head><body>
+<h1>בדיקת סנכרון: דאשבורד ↔ אתר</h1>
+<p>רץ על <code>/dashboard/index.html</code>. לבדיקה על קובץ אחר: <code>?dashboard=/tests/fixtures/dashboard-fixture.html</code>.
+משתמש באותו קוד פרוטוקול שרץ באתר (<code>src/lib/dashboardSync.js</code>). תכנית נחשבת מותאמת אם שמה באתר או אחד מהכינויים שלה
+(<code>aliases</code> ב-<code>plans.json</code>) מופיעים בבורר של הדאשבורד.</p>
+<div id="sum">מריץ…</div>
+<table><thead><tr><th>#</th><th>בדיקה</th><th>תוצאה</th><th>פירוט</th></tr></thead><tbody id="rows"></tbody></table>
+<iframe id="f" title="dashboard"></iframe>
+<script type="module">
+import { normName, planNames } from "../src/lib/names.js";
+import { dashboardUrl, selectPlanMessage, planFromDashboardMessage, unknownPlanFromDashboardMessage, isReadyMessage, SOURCE_DASH } from "../src/lib/dashboardSync.js";
+
+const DASH = new URLSearchParams(location.search).get("dashboard") || "/dashboard/index.html";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const until = async (fn, ms = 20000) => { const t = Date.now(); while (Date.now() - t < ms) { try { const v = fn(); if (v) return v; } catch {} await sleep(100); } return false; };
+const same = (a, b) => normName(a) === normName(b);
+const is = (p, text) => planNames(p).some((n) => same(n, text));                         // טקסט אפשרות תואם לשם באתר או לכינוי
+const headerHasPlan = (p, h) => planNames(p).some((n) => normName(h).includes(normName(n)));
+const results = []; const tbody = document.getElementById("rows");
+function rec(name, status, detail = "") {
+  results.push({ name, status, detail });
+  const tr = document.createElement("tr"); tr.className = status;
+  tr.innerHTML = `<td>${results.length}</td><td></td><td>${status}</td><td></td>`;
+  tr.children[1].textContent = name; tr.children[3].textContent = detail; tbody.append(tr);
+}
+function finish() {
+  const c = (s) => results.filter((r) => r.status === s).length;
+  document.getElementById("sum").textContent = `עברו ${c("PASS")} · נכשלו ${c("FAIL")} · דולגו ${c("SKIP")}`;
+  window.__syncResults = results; window.__syncDone = true;
+}
+
+(async function main() {
+const plans = await (await fetch("/data/plans.json")).json();
+const frame = document.getElementById("f");
+const inbox = [];
+window.addEventListener("message", (e) => { if (e.source === frame.contentWindow && e.data && e.data.source === SOURCE_DASH) inbox.push(e.data); });
+const doc = () => frame.contentDocument;
+const sel = () => doc().getElementById("planSel");
+const selText = () => { const s = sel(); return s && s.options[s.selectedIndex] ? s.options[s.selectedIndex].text : ""; };
+const header = () => (doc().getElementById("mapPlan") || {}).textContent || "";
+const hasOption = (p) => [...sel().options].some((o) => o.value !== "*" && is(p, o.text));
+const optionText = (p) => [...sel().options].find((o) => o.value !== "*" && is(p, o.text)).text;
+const sendToDash = (x) => { const p = typeof x === "string" ? { name: x } : x; frame.contentWindow.postMessage(selectPlanMessage(p.name, p.aliases || []), "*"); };
+const fire = () => new (frame.contentWindow.Event)("change", { bubbles: true });
+const userPick = (text) => { const s = sel(), o = [...s.options].find((x) => x.text === text); s.value = o.value; s.dispatchEvent(fire()); };
+
+const initial = plans.find((p) => p.id === "ZB");
+frame.src = dashboardUrl(DASH, initial.name, initial.aliases);
+await new Promise((r) => frame.addEventListener("load", r, { once: true }));
+
+const planSelFound = await until(() => sel(), 10000);
+rec("הדאשבורד נטען ויש בו #planSel", planSelFound ? "PASS" : "FAIL", planSelFound ? "" : "לא נמצא אלמנט עם id=planSel");
+const bridgeFound = !!frame.contentWindow.__spatialBridge;
+rec("bridge.js נטען בדאשבורד", bridgeFound ? "PASS" : "FAIL", bridgeFound ? "" : "הריצי prepare-dashboard או הוסיפי <script src=\"bridge.js\">");
+if (!planSelFound || !bridgeFound) return finish();
+
+const initOk = await until(() => is(initial, selText()), 20000);
+rec("בחירה ראשונית מ-?plan= (כולל המתנה לטעינה אסינכרונית)", initOk ? "PASS" : "FAIL", `נבחר: "${selText()}", צפוי: ${planNames(initial).map((n) => `"${n}"`).join(" או ")}`);
+const uiLive = await until(() => /תשריט ראשי\s*–/.test(header()), 15000);
+if (initOk && uiLive) {
+  const ok = await until(() => headerHasPlan(initial, header()), 5000);
+  rec("הדאשבורד הגיב לבחירה הראשונית (כותרת המפה)", ok ? "PASS" : "FAIL", `כותרת: "${header()}"`);
+} else rec("הדאשבורד הגיב לבחירה הראשונית (כותרת המפה)", "SKIP", "כותרת המפה לא מציגה תכנית. נבדק רק הבורר.");
+rec('הדאשבורד שלח "ready"', inbox.some(isReadyMessage) ? "PASS" : "FAIL");
+
+const before = inbox.filter((m) => m.type === "plan-selected").length;
+for (const p of plans) {
+  const name = `אתר → דאשבורד: ${p.name}`;
+  if (!hasOption(p)) {
+    const key = p.name.split(/[–\- ]/)[0];
+    rec(name, "SKIP", "אין תכנית כזו ברשימת הדאשבורד. אפשרויות דומות: " + ([...sel().options].map((o) => o.text).filter((t) => t.includes(key)).join(" | ") || "אין") + ". אם זו אותה תכנית, מוסיפים את השם ל-aliases ב-plans.json");
+    continue;
+  }
+  sendToDash(p);
+  const ok = await until(() => is(p, selText()), 3000);
+  let ui = "";
+  if (ok && uiLive) { const u = await until(() => headerHasPlan(p, header()), 3000); if (!u) { rec(name, "FAIL", `הבורר השתנה אבל הדאשבורד לא הגיב. כותרת: "${header()}". ייתכן שאין מאזין change על #planSel`); continue; } ui = " + הדאשבורד הגיב"; }
+  rec(name, ok ? "PASS" : "FAIL", ok ? `נבחר "${selText()}"${ui}` : `נבחר: "${selText()}"`);
+}
+const echoes = inbox.filter((m) => m.type === "plan-selected").length - before;
+rec("אין הד: הודעות מהאתר לא גורמות להודעה חוזרת (מונע לולאה)", echoes === 0 ? "PASS" : "FAIL", `הודעות plan-selected שהתקבלו: ${echoes}`);
+
+{ const keep = selText(); sendToDash("תכנית שלא קיימת"); await sleep(500);
+  rec("שם תכנית לא מוכר לא משנה את הבחירה", selText() === keep ? "PASS" : "FAIL", `לפני: "${keep}", אחרי: "${selText()}"`); }
+
+// דאשבורד -> אתר: לכל תכנית שיש לה אפשרות בדאשבורד (כולל אלו עם כינוי)
+const dashPlans = plans.filter((p) => hasOption(p));
+for (const p of dashPlans) {
+  const n0 = inbox.length; userPick(optionText(p));
+  const got = await until(() => inbox.slice(n0).find((m) => m.type === "plan-selected"), 3000);
+  const id = got ? planFromDashboardMessage(got, plans, null) : null;
+  rec(`דאשבורד → אתר: ${p.name}`, id === p.id ? "PASS" : "FAIL", got ? `הודעה: "${got.name}" → ${id}` : "לא התקבלה הודעה");
+}
+
+{ const n0 = inbox.length; const s = sel(); s.value = "*"; s.dispatchEvent(fire()); await sleep(600);
+  const msgs = inbox.slice(n0).filter((m) => m.type === "plan-selected");
+  const switched = msgs.map((m) => planFromDashboardMessage(m, plans, null)).filter(Boolean);
+  rec('בחירת "כל התכניות" בדאשבורד לא מעבירה תכנית באתר', switched.length === 0 ? "PASS" : "FAIL", `הודעות: ${msgs.length}`); }
+
+{ const p = dashPlans[0] || plans[0];
+  sendToDash(p); await until(() => is(p, selText()), 3000);
+  if (typeof frame.contentWindow.__rebuild === "function") frame.contentWindow.__rebuild();
+  await sleep(4500);
+  rec("הבחירה נשמרת אחרי בנייה מחדש של רשימת התכניות", is(p, selText()) ? "PASS" : "FAIL", `אחרי ההמתנה: "${selText()}"`); }
+
+if (typeof frame.contentWindow.__rebuildWithout === "function") {
+  const p = dashPlans[1] || dashPlans[0] || plans[0];
+  sendToDash(p); await until(() => is(p, selText()), 3000);
+  frame.contentWindow.__rebuildWithout(optionText(p));
+  const reset = selText() === "כל התכניות";
+  frame.contentWindow.__rebuild();
+  const back = await until(() => is(p, selText()), 3000);
+  rec("איפוס בבנייה מחדש: הבחירה חוזרת כשהתכנית חוזרת לרשימה", reset && back ? "PASS" : "FAIL", `אופס: ${reset}, חזר: ${!!back}, כעת: "${selText()}"`);
+} else rec("איפוס בבנייה מחדש", "SKIP", "תקין בדאשבורד האמיתי. הבדיקה רצה רק על הדאשבורד הדמה (tests/fixtures), כי היא צריכה לבנות את הרשימה מחדש.");
+
+{ const s = sel(); s.value = "*"; s.dispatchEvent(fire());
+  if (typeof frame.contentWindow.__rebuild === "function") frame.contentWindow.__rebuild();
+  await sleep(600);
+  rec('בחירת המשתמש "כל התכניות" לא נדרסת בבנייה מחדש', selText() === "כל התכניות" ? "PASS" : "FAIL", `כעת: "${selText()}"`); }
+
+{ const extra = [...sel().options].map((o) => o.text).find((t) => t !== "כל התכניות" && !plans.some((p) => is(p, t)));
+  if (!extra) rec("מרחב שאינו ב-12 התכניות", "SKIP", "כל אפשרויות הדאשבורד תואמות תכניות באתר");
+  else {
+    const n0 = inbox.length; userPick(extra);
+    const got = await until(() => inbox.slice(n0).find((m) => m.type === "plan-selected"), 3000);
+    const switched = got ? planFromDashboardMessage(got, plans, null) : "אין הודעה";
+    const unknown = got ? unknownPlanFromDashboardMessage(got, plans) : null;
+    rec(`מרחב "${extra}" לא מחליף תכנית באתר ומדווח כלא מוכר`, got && switched === null && unknown === extra ? "PASS" : "FAIL", `הודעה: ${got ? got.name : "אין"}, מעבר: ${switched}, לא מוכר: ${unknown}`);
+  } }
+
+finish();
+})().catch((e) => { document.getElementById("sum").textContent = "שגיאה בהרצת הבדיקה: " + e; results.push({ name: "harness", status: "FAIL", detail: String(e) }); finish(); });
+</script></body></html>

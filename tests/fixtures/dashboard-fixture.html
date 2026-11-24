@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><title>dashboard fixture</title></head>
+<body>
+<!-- מדמה את הדאשבורד האמיתי: מאזין change זהה לאמיתי, fillPlanSelect עם replaceChildren,
+     ושמות תכניות כפי שמופיעים בדאשבורד (למשל "צור באהר" ו"הגבעה הצרפתית"), כולל מרחבים שאינם ב-12 התכניות. -->
+<h1 id="mapPlan">תשריט ראשי</h1>
+<select id="planSel"><option value="*">כל התכניות</option></select>
+<script>
+const $ = s => document.querySelector(s);
+const el = (t, a) => { const e = document.createElement(t); for (const k in a || {}) k === 'text' ? e.textContent = a[k] : e.setAttribute(k, a[k]); return e; };
+const S = { f: { plan: '*', offSub: new Set() }, feats: [], view: null, sel: null };
+const NAMES = ['ארמון הנציב','דרום מערב','אורנים','גילה','בית הכרם','רמות','צור הדסה','צור באהר','פסגת זאב','תלפיות','גבעת זאב','הגבעה הצרפתית',
+  'מרכז העיר','קטמון','בקעה','גבעת שאול','הר נוף','ארנונה','מלחה','בית צפאפא','שועפט','סילוואן','א-טור'];
+let HIDDEN = null;
+function fillPlanSelect() {
+  const plans = NAMES.filter(n => n !== HIDDEN).sort((a, b) => a.localeCompare(b, 'he'));
+  const sel = $('#planSel'), cur = S.f.plan;
+  sel.replaceChildren(el('option', { value: '*', text: 'כל התכניות' }), ...plans.map(p => el('option', { value: p, text: p })));
+  if (cur !== '*' && !plans.includes(cur)) S.f.plan = '*';
+  sel.value = S.f.plan;
+}
+const buildChips = () => {}, fitAll = () => {}, closePanel = () => {};
+function render() {
+  const planName = S.f.plan === '*' ? 'כל התכניות' : S.f.plan;
+  $('#mapPlan').textContent = S.feats.length ? 'תשריט ראשי – ' + planName : 'תשריט ראשי';
+}
+$('#planSel').addEventListener('change', e => { S.f.plan = e.target.value; S.f.offSub.clear(); S.sel = null; if (S.view && S.view.mode === 'project') closePanel(); buildChips(); render(); fitAll(); });
+window.__rebuild = () => { HIDDEN = null; fillPlanSelect(); render(); };
+window.__rebuildWithout = name => { HIDDEN = name; fillPlanSelect(); render(); };
+setTimeout(() => { S.feats.push(1); window.__rebuild(); }, 400);
+setTimeout(window.__rebuild, 1800);
+setTimeout(window.__rebuild, 3500);
+</script>
+<script src="/dashboard/bridge.js"></script>
+</body></html>

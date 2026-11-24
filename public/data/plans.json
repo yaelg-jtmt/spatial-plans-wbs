@@ -1,0 +1,87 @@
+[
+  {
+    "id": "AH",
+    "name": "ארמון הנציב",
+    "progress": 100,
+    "status": "הושלם",
+    "completed": true
+  },
+  {
+    "id": "SW",
+    "name": "דרום מערב",
+    "progress": 100,
+    "status": "הושלם",
+    "completed": true
+  },
+  {
+    "id": "OR",
+    "name": "אורנים",
+    "progress": 100,
+    "status": "הושלם",
+    "completed": true
+  },
+  {
+    "id": "GI",
+    "name": "גילה",
+    "progress": 100,
+    "status": "הושלם",
+    "completed": true
+  },
+  {
+    "id": "BK",
+    "name": "בית הכרם",
+    "progress": 82,
+    "status": "בתהליך"
+  },
+  {
+    "id": "RA",
+    "name": "רמות",
+    "progress": 69,
+    "status": "בתהליך"
+  },
+  {
+    "id": "TH",
+    "name": "צור הדסה",
+    "progress": 61,
+    "status": "בתהליך"
+  },
+  {
+    "id": "ZB",
+    "name": "צור באהר–אום טובא",
+    "progress": 64,
+    "status": "בתהליך",
+    "aliases": [
+      "צור באהר"
+    ]
+  },
+  {
+    "id": "PN",
+    "name": "פסגת זאב–נווה יעקב",
+    "progress": 57,
+    "status": "בתהליך",
+    "aliases": [
+      "פסגת זאב"
+    ]
+  },
+  {
+    "id": "TA",
+    "name": "תלפיות",
+    "progress": 55,
+    "status": "ממתין"
+  },
+  {
+    "id": "GZ",
+    "name": "גבעת זאב",
+    "progress": 49,
+    "status": "בתהליך"
+  },
+  {
+    "id": "FI",
+    "name": "גבעה צרפתית–עיסאוויה",
+    "progress": 28,
+    "status": "בתהליך",
+    "aliases": [
+      "הגבעה הצרפתית"
+    ]
+  }
+]
