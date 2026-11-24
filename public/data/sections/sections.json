@@ -1,0 +1,279 @@
+{
+  "streets": [
+    {
+      "id": "GI_afarsemon",
+      "plan": "גילה",
+      "name": "אפרסמון",
+      "aliases": [
+        "אפרסמון"
+      ],
+      "codes": [],
+      "existing": {
+        "file": "GI_afarsemon_existing.png",
+        "width": 17,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "GI_afarsemon_A_proposed.png",
+          "width": 20.5,
+          "note": "",
+          "label": "חלופה א"
+        },
+        {
+          "file": "GI_afarsemon_B_proposed.png",
+          "width": 20.5,
+          "note": "",
+          "label": "חלופה ב"
+        }
+      ]
+    },
+    {
+      "id": "GI_ben-eliezer",
+      "plan": "גילה",
+      "name": "אריה בן-אליעזר",
+      "aliases": [
+        "אריה בן אליעזר",
+        "בן אליעזר",
+        "בן אלעזר",
+        "אריה בן אלעזר"
+      ],
+      "codes": [],
+      "existing": {
+        "file": "GI_ben-eliezer_existing.png",
+        "width": 17,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "GI_ben-eliezer_A_proposed.png",
+          "width": 19.5,
+          "note": "",
+          "label": "חלופה א"
+        },
+        {
+          "file": "GI_ben-eliezer_B_proposed.png",
+          "width": 17,
+          "note": "",
+          "label": "חלופה ב"
+        }
+      ]
+    },
+    {
+      "id": "GI_hamor",
+      "plan": "גילה",
+      "name": "המור",
+      "aliases": [
+        "המור"
+      ],
+      "codes": [],
+      "existing": {
+        "file": "GI_hamor_existing.png",
+        "width": 24.59,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "GI_hamor_A_proposed.png",
+          "width": 24.6,
+          "note": "",
+          "label": "חלופה א"
+        },
+        {
+          "file": "GI_hamor_B_proposed.png",
+          "width": 25.1,
+          "note": "",
+          "label": "חלופה ב"
+        },
+        {
+          "file": "GI_hamor_C_proposed.png",
+          "width": 25.1,
+          "note": "",
+          "label": "חלופה ג"
+        }
+      ]
+    },
+    {
+      "id": "GI_hatzof",
+      "plan": "גילה",
+      "name": "הצוף",
+      "aliases": [
+        "הצוף"
+      ],
+      "codes": [],
+      "existing": {
+        "file": "GI_hatzof_existing.png",
+        "width": 17.7,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "GI_hatzof_A_proposed.png",
+          "width": null,
+          "note": "חתך 3.4",
+          "label": "חלופה א"
+        },
+        {
+          "file": "GI_hatzof_A2_proposed.png",
+          "width": null,
+          "note": "חתך 3.4A",
+          "label": "חלופה א – חתך 2"
+        }
+      ]
+    },
+    {
+      "id": "GI_vardinon",
+      "plan": "גילה",
+      "name": "ורדינון",
+      "aliases": [
+        "ורדינון"
+      ],
+      "codes": [],
+      "existing": {
+        "file": "GI_vardinon_existing.png",
+        "width": 18.15,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "GI_vardinon_A_proposed.png",
+          "width": 18.5,
+          "note": "",
+          "label": "חלופה א"
+        },
+        {
+          "file": "GI_vardinon_B_proposed.png",
+          "width": 19,
+          "note": "",
+          "label": "חלופה ב"
+        },
+        {
+          "file": "GI_vardinon_C_proposed.png",
+          "width": 18,
+          "note": "",
+          "label": "חלופה ג"
+        }
+      ]
+    },
+    {
+      "id": "GI_yustman",
+      "plan": "גילה",
+      "name": "יוסטמן",
+      "aliases": [
+        "יוסטמן",
+        "יוטסמן"
+      ],
+      "codes": [],
+      "existing": {
+        "file": "GI_yustman_existing.png",
+        "width": 17,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "GI_yustman_A_proposed.png",
+          "width": 16.5,
+          "note": "",
+          "label": "חלופה א"
+        },
+        {
+          "file": "GI_yustman_B_proposed.png",
+          "width": 17,
+          "note": "",
+          "label": "חלופה ב"
+        }
+      ]
+    },
+    {
+      "id": "GI_levona",
+      "plan": "גילה",
+      "name": "לבונה",
+      "aliases": [
+        "לבונה"
+      ],
+      "codes": [],
+      "existing": {
+        "file": "GI_levona_existing.png",
+        "width": 20.1,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "GI_levona_A_proposed.png",
+          "width": 20,
+          "note": "",
+          "label": "חלופה א"
+        },
+        {
+          "file": "GI_levona_B_proposed.png",
+          "width": 17.5,
+          "note": "",
+          "label": "חלופה ב"
+        },
+        {
+          "file": "GI_levona_C_proposed.png",
+          "width": 20,
+          "note": "",
+          "label": "חלופה ג"
+        }
+      ]
+    },
+    {
+      "id": "GI_hanegbi",
+      "plan": "גילה",
+      "name": "שבתאי הנגבי",
+      "aliases": [
+        "שבתאי הנגבי",
+        "הנגבי"
+      ],
+      "codes": [],
+      "existing": {
+        "file": "GI_hanegbi_existing.png",
+        "width": 25.1,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "GI_hanegbi_A_proposed.png",
+          "width": 25.1,
+          "note": "",
+          "label": "חלופה א"
+        },
+        {
+          "file": "GI_hanegbi_B_proposed.png",
+          "width": 25.1,
+          "note": "",
+          "label": "חלופה ב"
+        }
+      ]
+    },
+    {
+      "id": "GI_shamir",
+      "plan": "גילה",
+      "name": "שמיר",
+      "aliases": [
+        "שמיר"
+      ],
+      "codes": [],
+      "existing": {
+        "file": "GI_shamir_existing.png",
+        "width": 11,
+        "note": ""
+      },
+      "proposed": [
+        {
+          "file": "GI_shamir_A_proposed.png",
+          "width": 14.5,
+          "note": "",
+          "label": "חלופה א"
+        },
+        {
+          "file": "GI_shamir_B_proposed.png",
+          "width": 11,
+          "note": "",
+          "label": "חלופה ב"
+        }
+      ]
+    }
+  ]
+}

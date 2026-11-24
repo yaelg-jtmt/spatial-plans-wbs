@@ -1,0 +1,31 @@
+﻿תכנית,רחוב,מקטע,מצב,חלופה,קובץ תמונה,רוחב זכות דרך (מ'),הערה קצרה,קוד פרויקט / GIS,הערת בדיקה (פנימי),שקופית מקור
+גילה,שבתאי הנגבי,כל הרחוב,קיים,,GI_hanegbi_existing.png,25.1,,,,3
+גילה,שבתאי הנגבי,A,מוצע,א,GI_hanegbi_A_proposed.png,25.1,,,,7
+גילה,שבתאי הנגבי,B,מוצע,ב,GI_hanegbi_B_proposed.png,25.1,,,,7
+גילה,המור,כל הרחוב,קיים,,GI_hamor_existing.png,24.59,,,,8
+גילה,המור,A,מוצע,א,GI_hamor_A_proposed.png,24.6,,,,12
+גילה,המור,B,מוצע,ב,GI_hamor_B_proposed.png,25.1,,,טקסט הטבלה בשקופית מזכיר את רחוב שבתאי הנגבי (כנראה הועתק). לבדוק מול היועץ.,13
+גילה,המור,C,מוצע,ג,GI_hamor_C_proposed.png,25.1,,,טקסט הטבלה בשקופית מזכיר את רחוב שבתאי הנגבי (כנראה הועתק). לבדוק מול היועץ.,13
+גילה,ורדינון,כל הרחוב,קיים,,GI_vardinon_existing.png,18.15,,,,14
+גילה,ורדינון,A,מוצע,א,GI_vardinon_A_proposed.png,18.5,,,,18
+גילה,ורדינון,B,מוצע,ב,GI_vardinon_B_proposed.png,19,,,,18
+גילה,ורדינון,C,מוצע,ג,GI_vardinon_C_proposed.png,18,,,,19
+גילה,אריה בן-אליעזר,כל הרחוב,קיים,,GI_ben-eliezer_existing.png,17,,,,20
+גילה,אריה בן-אליעזר,A,מוצע,א,GI_ben-eliezer_A_proposed.png,19.5,,,,24
+גילה,אריה בן-אליעזר,B,מוצע,ב,GI_ben-eliezer_B_proposed.png,17,,,,24
+גילה,לבונה,כל הרחוב,קיים,,GI_levona_existing.png,20.1,,,,25
+גילה,לבונה,A,מוצע,א,GI_levona_A_proposed.png,20,,,,29
+גילה,לבונה,B,מוצע,ב,GI_levona_B_proposed.png,17.5,,,,29
+גילה,לבונה,C,מוצע,ג,GI_levona_C_proposed.png,20,,,"בשרטוט כתוב 'חלופה ג׳', ובטבלת השקופית 'א'. נבדק מול השרטוט.",30
+גילה,אפרסמון,כל הרחוב,קיים,,GI_afarsemon_existing.png,17,,,,31
+גילה,אפרסמון,A,מוצע,א,GI_afarsemon_A_proposed.png,20.5,,,,35
+גילה,אפרסמון,B,מוצע,ב,GI_afarsemon_B_proposed.png,20.5,,,,35
+גילה,שמיר,כל הרחוב,קיים,,GI_shamir_existing.png,11,,,,36
+גילה,שמיר,A,מוצע,א,GI_shamir_A_proposed.png,14.5,,,,39
+גילה,שמיר,B,מוצע,ב,GI_shamir_B_proposed.png,11,,,,39
+גילה,הצוף,כל הרחוב,קיים,,GI_hatzof_existing.png,17.7,,,,40
+גילה,הצוף,A,מוצע,א,GI_hatzof_A_proposed.png,,חתך 3.4,,חתך 3.4 (חתך טיפוסי ראשון של חלופה א),44
+גילה,הצוף,A2,מוצע,א,GI_hatzof_A2_proposed.png,,חתך 3.4A,,חתך 3.4A (חתך טיפוסי שני של חלופה א),44
+גילה,יוסטמן,כל הרחוב,קיים,,GI_yustman_existing.png,17,,,,45
+גילה,יוטסמן,A,מוצע,א,GI_yustman_A_proposed.png,16.5,,,,48
+גילה,יוטסמן,B,מוצע,ב,GI_yustman_B_proposed.png,17,,,,48
