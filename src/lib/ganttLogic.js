@@ -1,21 +1,29 @@
 // לוגיקה טהורה של הגאנט: חלונות זמן לשלבים, מחזורי תחזוקה (לא פס רציף) ו"היום".
-import { isCompleted } from "./wbsLogic.js";
+import { STAGES, isCompleted, stageState } from "./wbsLogic.js";
 
 export function maintenanceCycles(seg, cycleMonths, total) {
   return cycleMonths.filter((m) => m >= seg.a && m < Math.min(seg.b, total)).map((m) => ({ a: m, b: m + 1 }));
 }
 
-// שורות הגאנט של תכנית: לכל שלב שורה אחת. תכנית שהושלמה: שלבים בלי תאריכים (הושלם), ורק מחזורי תחזוקה מתוארכים.
+// שורות הגאנט של תכנית: תמיד שורה לכל אחד משבעת השלבים (0–6), כך שרואים גם שלבים שהסתיימו וגם שלבים שטרם תוזמנו.
+//  - שלב עם חלון זמן בנתונים: פס (או מחזורי תחזוקה בשלב 6)
+//  - שלב שהסתיים ואין לו תאריכים בנתונים (או תכנית שהושלמה): "הושלם" ללא תאריך
+//  - שלב עתידי ללא חלון: "טרם תוזמן"
 export function stageRows(plan, gantt, versionB = false) {
   const done = isCompleted(plan, versionB);
   const total = gantt.months.length;
-  return (gantt.planGantt[plan.id] || []).map((seg) => {
-    if (seg.s === 6) {
+  const segs = Object.fromEntries((gantt.planGantt[plan.id] || []).map((g) => [g.s, g]));
+  return STAGES.map((name, s) => {
+    const seg = segs[s];
+    if (s === 6 && seg) {
       const bars = maintenanceCycles(seg, gantt.cycleMonths, total).map((c) => ({ ...c, st: "maint", l: "מחזור" }));
-      return { s: 6, label: "תחזוקה (מחזורי)", bars, undated: false, st: "maint" };
+      return { s, label: "תחזוקה (מחזורי)", bars, undated: false, st: "maint" };
     }
-    if (done) return { s: seg.s, label: seg.l, bars: [], undated: true, st: "done" };
-    return { s: seg.s, label: seg.l, bars: [{ a: seg.a, b: seg.b, st: seg.st, l: seg.l, m: seg.m }], undated: false, st: seg.st };
+    if (seg && !done) return { s, label: seg.l, bars: [{ a: seg.a, b: seg.b, st: seg.st, l: seg.l, m: seg.m }], undated: false, st: seg.st };
+    if (seg && done) return { s, label: seg.l, bars: [], undated: true, st: "done" };
+    const state = versionB && s <= 4 ? "future" : stageState(plan, s, versionB);
+    if (state === "done") return { s, label: name, bars: [], undated: true, st: "done" };
+    return { s, label: name, bars: [], undated: false, st: "unscheduled" };
   });
 }
 

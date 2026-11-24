@@ -35,6 +35,11 @@ export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
   const sum = summarize(rows);
   const seg = useMemo(() => Object.fromEntries(stageRows(current, gantt, versionB).map((r) => [r.s, r])), [current, gantt, versionB]);
   const completed = isCompleted(current, versionB);
+  const jump = (s) => {
+    setShow("הכול");
+    setOpen((o) => ({ ...o, [s]: true }));
+    setTimeout(() => document.getElementById(`stage-${s}`)?.scrollIntoView({ block: "start", behavior: "smooth" }), 50);
+  };
   const total = gantt.months.length;
   const headers = ["WBS", "משימה", "חובה / לפי צורך", "החלטה", "סטטוס", "אחראי", "Predecessor", "תוצר", "Next Action", "משויך לתוצר", "גאנט"];
 
@@ -91,6 +96,12 @@ export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
             {FILTERS.map((f) => <option key={f}>{f}</option>)}
           </select>
         </label>
+        <span className="flex flex-wrap items-center gap-1">
+          קפוץ לשלב:
+          {STAGES.map((n, i) => (
+            <button key={i} onClick={() => jump(i)} className="rounded-lg border bg-white px-2 py-1 text-xs hover:bg-blue-50" title={n}>{i}</button>
+          ))}
+        </span>
         <button onClick={() => setOpen(Object.fromEntries(STAGES.map((_, i) => [i, true])))} className="rounded-lg border bg-white px-3 py-2">פתח כל השלבים</button>
         <button onClick={() => setOpen(Object.fromEntries(STAGES.map((_, i) => [i, false])))} className="rounded-lg border bg-white px-3 py-2">סגור כל השלבים</button>
       </div>
@@ -107,7 +118,7 @@ export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
               const list = stageAll.filter(keep[show]);
               const gs = seg[s];
               return [
-                <tr key={`h${s}`} className="cursor-pointer bg-blue-50 font-semibold" onClick={() => setOpen((o) => ({ ...o, [s]: !o[s] }))}>
+                <tr key={`h${s}`} id={`stage-${s}`} className="scroll-mt-14 cursor-pointer bg-blue-50 font-semibold" onClick={() => setOpen((o) => ({ ...o, [s]: !o[s] }))}>
                   <td className="p-3" colSpan={headers.length}>
                     {open[s] ? "▾" : "◂"} שלב {s}: {name} · {ss.done}/{ss.counted} הושלמו{ss.excluded ? ` · ${ss.excluded} לא נספרות` : ""}
                   </td>
@@ -138,7 +149,7 @@ export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
                             {bars ? (
                               <MiniGantt bars={bars} total={total} color={r.status === "הושלם" ? BAR.done : r.status === "בתהליך" ? BAR.active : s === 6 ? BAR.maint : BAR.future} />
                             ) : (
-                              <span className="text-xs text-slate-400">{gs?.undated ? "הושלם (ללא תאריך)" : "—"}</span>
+                              <span className="text-xs text-slate-400">{gs?.undated ? "הושלם (ללא תאריך)" : gs?.st === "unscheduled" ? "טרם תוזמן" : "—"}</span>
                             )}
                           </td>
                         </tr>

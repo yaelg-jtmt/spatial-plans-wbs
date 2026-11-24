@@ -115,6 +115,8 @@ export default function Gantt({ plans, plan, setPlan, gantt, template }) {
                       <Timeline total={total} today={today}>
                         {r.undated ? (
                           <div className="px-3 text-xs font-semibold text-emerald-600" style={{ gridColumn: "2 / span 4", gridRow: 1 }}>הושלם</div>
+                        ) : r.st === "unscheduled" ? (
+                          <div className="px-3 text-xs text-slate-400" style={{ gridColumn: "2 / span 4", gridRow: 1 }}>טרם תוזמן</div>
                         ) : (
                           r.bars.map((b, i) => <Bar key={i} b={b} label={b.l} />)
                         )}

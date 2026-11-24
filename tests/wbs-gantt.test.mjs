@@ -160,21 +160,40 @@ test("גאנט: פתיחת גרסה ב' מחזירה לתכנית שהושלמה
   const rows = stageRows(P.SW, gantt, true);
   assert.ok(rows.some((r) => r.s === 3 && r.bars.length === 1 && !r.undated));
 });
-test("גאנט: תכנית פעילה מציגה חלון לכל שלב, ועם 'span' כולל", () => {
+test("גאנט: לכל תכנית תמיד 7 שורות שלבים (0–6), כולל שלבים שהסתיימו ושטרם תוזמנו", () => {
+  for (const p of plans) for (const vb of [false, true]) {
+    const rows = stageRows(p, gantt, vb);
+    assert.deepEqual(rows.map((r) => r.s), [0, 1, 2, 3, 4, 5, 6], `${p.id} vb=${vb}`);
+  }
+});
+test("גאנט: שלבים שקדמו לשלב הנוכחי מסומנים 'הושלם' (ללא תאריך), ושלבים עתידיים ללא חלון - 'טרם תוזמן'", () => {
+  const ta = stageRows(P.TA, gantt);            // תלפיות: חלונות מ-2 עד 6
+  for (const s of [0, 1]) { assert.equal(ta[s].st, "done"); assert.equal(ta[s].undated, true); assert.equal(ta[s].bars.length, 0); }
+  const fi = stageRows(P.FI, gantt);            // גבעה צרפתית: אין חלון לשלב 6
+  assert.equal(fi[0].st, "done");                 // שלב 0 קדם לשלב המוביל (1)
+  assert.equal(fi[3].st, "future");               // יש חלון עתידי
+  assert.equal(fi[6].st, "unscheduled");          // אין חלון לתחזוקה
+  assert.ok(fi[1].bars.length === 1 && fi[2].bars.length === 1);
+  const zb = stageRows(P.ZB, gantt);            // צור באהר
+  assert.equal(zb[0].st, "done"); assert.equal(zb[2].st, "done");
+  assert.equal(stageRows(P.SW, gantt, true)[1].st, "unscheduled"); // גרסה ב': שלבים 0–4 ללא חלון נפתחים מחדש
+});
+test("גאנט: תכנית פעילה מציגה חלון לכל שלב מתוזמן, ועם 'span' כולל", () => {
   const rows = stageRows(P.ZB, gantt);
-  assert.deepEqual(rows.map((r) => r.s), [3, 4, 5, 6]);
+  assert.deepEqual(rows.filter((r) => r.bars.length).map((r) => r.s), [3, 4, 5, 6]);
   assert.ok(planSpan(rows).a === 0 && planSpan(rows).b === 8);
-  assert.equal(rows[0].bars[0].m, 1); // אבן דרך ידועה (08.12.2026)
+  assert.equal(rows[3].bars[0].m, 1); // אבן דרך ידועה (08.12.2026)
 });
 test("גאנט: פס משימה נשאר בתוך חלון השלב שלו", () => {
   const rows = stageRows(P.TA, gantt);
-  for (const seg of rows.filter((r) => r.s !== 6)) {
+  for (const seg of rows.filter((r) => r.s !== 6 && r.bars.length)) {
     const stageTasks = tpl.filter((r) => r.stage === seg.s);
     stageTasks.forEach((t, i) => {
       const [b] = taskBar(t, i, stageTasks.length, seg);
       assert.ok(b.a >= seg.bars[0].a && b.b <= seg.bars[0].b && b.b > b.a, `${t.id}`);
     });
   }
+  for (const seg of rows.filter((r) => !r.bars.length)) assert.equal(taskBar(tpl.find((t) => t.stage === seg.s), 0, 5, seg), null, `שלב ${seg.s} ללא חלון`);
   assert.equal(taskBar(tpl[0], 0, 6, { bars: [], undated: true }), null);
   assert.equal(taskBar(tpl[0], 0, 6, undefined), null);
 });
