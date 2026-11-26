@@ -2646,12 +2646,10 @@ function xpPanel(body, p) {
   if (xp.loading.has(sp.id) || (!xp.records.has(sp.id) && !xp.failed.has(sp.id))) { body.append(el('p', { class: 'hint', text: 'טוען תב"עות של ' + sp.name + '…' })); return; }
   if (!xp.records.has(sp.id)) { body.append(el('p', { class: 'hint', style: 'color:var(--warn)', text: xp.failed.get(sp.id) || 'הטעינה נכשלה.' })); return; }
   const c = xpCandidates(p) || [];
-  body.append(el('p', { class: 'hint', text: 'תב"עות שגבולן חוצה את הפרויקט, לפי הסינון הנוכחי בסרגל (סמכות, יח"ד, סטטוס). תכניות עירוניות שמכסות את רוב המרחב לא נכללות. הקישור נשמר בדפדפן ואפשר לייצא אותו לאקסל.' }));
   if (!c.length) { body.append(el('p', { class: 'hint', text: 'לא נמצאו תב"עות שחופפות לפרויקט עם הסינון הנוכחי.' })); return; }
   c.slice(0, 15).forEach(({ r, hits, decided }) => {
     body.append(el('div', { class: 'xp-item' + (decided ? ' ' + decided : '') },
       el('div', {}, el('i', { class: 'dot', style: 'display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:6px;background:' + xpColor(r.station) }), el('b', { text: r.num }), ' · ' + r.name),
-      el('div', { class: 'hint', style: 'margin:2px 0 4px', text: [r.station, xpAuthOf(r), r.units != null ? (r.units > 0 ? '+' : '') + r.units + ' יח"ד' : '', hits + ' נק\' חפיפה'].filter(Boolean).join(' · ') }),
       el('div', { class: 'xp-act' },
         el('button', { class: 'btn small', type: 'button', 'aria-pressed': String(decided === 'yes'), onclick: () => xpSetLink(p, r.num, 'yes'), text: decided === 'yes' ? '✓ מאושר' : 'אישור קישור' }),
         el('button', { class: 'btn small', type: 'button', 'aria-pressed': String(decided === 'no'), onclick: () => xpSetLink(p, r.num, 'no'), text: decided === 'no' ? '✗ נדחה' : 'דחייה' }),

@@ -78,7 +78,7 @@ export default function TaskRow({ r, open, onToggle, onPatch, onClear, onGoTo, r
                 <div><span className="mb-1 block text-sm font-bold">משויך לתוצר</span><ProductAssignment label={r.id} values={r.products} onChange={(v) => onPatch(r.id, { products: v })} /></div>
               </div>
               <div className="space-y-2">
-                <label className="block text-sm"><span className="mb-1 block font-bold">הערה: מה קורה במשימה</span>
+                <label className="block text-sm"><span className="mb-1 block font-bold">{r.status === "מעוכב" ? "חסם / סיבת העיכוב" : "הערה: מה קורה במשימה"}</span>
                   <textarea aria-label={L("הערה")} value={r.note} onChange={(e) => onPatch(r.id, { note: e.target.value })} rows={3} className="w-full rounded-lg border border-slate-200 bg-white p-2" placeholder="למשל: ממתינים לתחזית מהיועץ, צפוי בשבוע הבא" />
                 </label>
                 <div className="text-xs text-slate-500">לוח זמנים בגאנט (תכנון ראשוני):</div>
