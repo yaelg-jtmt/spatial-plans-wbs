@@ -22,7 +22,7 @@ function MiniGantt({ bars, total, state }) {
   );
 }
 
-export default function TaskRow({ r, open, onToggle, onPatch, onClear, onGoTo, rowsById, graph, bars, total, flash, undatedText }) {
+export default function TaskRow({ r, open, onToggle, onPatch, onClear, onGoTo, rowsById, graph, bars, total, flash, undatedText, workMode = false }) {
   const preds = graph.preds.get(r.id) || [], predNotes = graph.notes.get(r.id) || [];
   const waitingOnMe = (graph.succs.get(r.id) || []).filter((id) => { const x = rowsById.get(id); return x && !x.excluded && x.state !== "done"; });
   const chip = (id) => { const x = rowsById.get(id); return x ? (
@@ -44,11 +44,17 @@ export default function TaskRow({ r, open, onToggle, onPatch, onClear, onGoTo, r
           </div>
         </td>
         <td className="min-w-[150px] p-2">
-          {r.excluded ? <span className="inline-block rounded-full bg-slate-100 px-3 py-2 text-xs text-slate-600">{r.status}</span> : <Select label={L("סטטוס")} value={r.status} options={STATUSES} onChange={(v) => onPatch(r.id, { status: v })} />}
+          {!workMode || r.excluded
+  ? <span className="inline-block rounded-full bg-slate-100 px-3 py-2 text-xs text-slate-700">{r.status}</span>
+  : <Select label={L("סטטוס")} value={r.status} options={STATUSES} onChange={(v) => onPatch(r.id, { status: v })} />}
           <div className="mt-1 text-[11px] text-slate-500">{r.manual ? (r.updated ? `עודכן ${fmtDate(r.updated)}` : "עודכן ידנית") : "מחושב משלב התכנית"}</div>
         </td>
-        <td className="min-w-[180px] p-2"><Select label={L("החלטה")} value={r.decision} options={DECISIONS} onChange={(v) => onPatch(r.id, { decision: v })} /></td>
-        <td className="min-w-[150px] p-2"><Select label={L("אחראי")} value={r.owner} options={optionsWith(OWNERS, r.owner)} onChange={(v) => onPatch(r.id, { owner: v })} /></td>
+        <td className="min-w-[180px] p-2">{workMode
+  ? <Select label={L("החלטה")} value={r.decision} options={DECISIONS} onChange={(v) => onPatch(r.id, { decision: v })} />
+  : <span>{r.decision || "—"}</span>} : <span>{r.decision || "—"}</span>}</td>
+        <td className="min-w-[150px] p-2">{workMode
+  ? <Select label={L("אחראי")} value={r.owner} options={optionsWith(OWNERS, r.owner)} onChange={(v) => onPatch(r.id, { owner: v })} />
+  : <span>{r.owner || "—"}</span>} : <span>{r.owner || "—"}</span>}</td>
         <td className="min-w-[200px] p-3 text-sm text-slate-700">{r.next}</td>
         <td className="p-2">
           <button type="button" aria-expanded={open} aria-controls={`detail-${r.id}`} aria-label={L(open ? "סגירת פרטים של" : "פתיחת פרטים של")} onClick={() => onToggle(r.id)} className="rounded-lg border bg-white px-2 py-1 text-xs hover:bg-slate-50">{open ? "▴ פחות" : "▾ פרטים"}</button>
@@ -72,20 +78,26 @@ export default function TaskRow({ r, open, onToggle, onPatch, onClear, onGoTo, r
               </div>
               <div className="space-y-2">
                 <label className="block text-sm"><span className="mb-1 block font-bold">סוג המשימה</span>
-                  <Select label={L("סוג משימה")} value={r.requirement} options={optionsWith(REQUIREMENTS, r.requirement)} onChange={(v) => onPatch(r.id, { requirement: v })} />
+                  {workMode
+  ? <Select label={L("סוג משימה")} value={r.requirement} options={optionsWith(REQUIREMENTS, r.requirement)} onChange={(v) => onPatch(r.id, { requirement: v })} />
+  : <span>{r.requirement}</span>} : <span>{r.requirement}</span>}
                 </label>
                 <p className="text-sm"><b>תוצר מצופה: </b>{r.deliverable}</p>
-                <div><span className="mb-1 block text-sm font-bold">משויך לתוצר</span><ProductAssignment label={r.id} values={r.products} onChange={(v) => onPatch(r.id, { products: v })} /></div>
+                <div><span className="mb-1 block text-sm font-bold">משויך לתוצר</span>{workMode
+  ? <ProductAssignment label={r.id} values={r.products} onChange={(v) => onPatch(r.id, { products: v })} />
+  : <span className="text-sm">{r.products?.length ? r.products.join(", ") : "לא שויך"}</span>} : <span className="text-sm">{r.products?.length ? r.products.join(", ") : "לא שויך"}</span>}</div>
               </div>
               <div className="space-y-2">
                 <label className="block text-sm"><span className="mb-1 block font-bold">{r.status === "מעוכב" ? "חסם / סיבת העיכוב" : "הערה: מה קורה במשימה"}</span>
-                  <textarea aria-label={L("הערה")} value={r.note} onChange={(e) => onPatch(r.id, { note: e.target.value })} rows={3} className="w-full rounded-lg border border-slate-200 bg-white p-2" placeholder="למשל: ממתינים לתחזית מהיועץ, צפוי בשבוע הבא" />
+                  {workMode
+  ? <textarea aria-label={L("הערה")} value={r.note} onChange={(e) => onPatch(r.id, { note: e.target.value })} rows={3} className="w-full rounded-lg border border-slate-200 bg-white p-2" placeholder="למשל: ממתינים לתחזית מהיועץ, צפוי בשבוע הבא" />
+  : <p className="rounded-lg bg-white p-2 text-sm">{r.note || "אין הערה"}</p>} : <p className="rounded-lg bg-white p-2 text-sm">{r.note || "אין הערה"}</p>}
                 </label>
                 <div className="text-xs text-slate-500">לוח זמנים בגאנט (תכנון ראשוני):</div>
                 {bars ? <MiniGantt bars={bars} total={total} state={r.state} /> : <div className="text-xs text-slate-400">{undatedText}</div>}
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span>{r.updated ? `עודכן לאחרונה: ${fmtDate(r.updated)}` : "לא עודכן"}</span>
-                  {r.hasOverride && <button type="button" aria-label={L("איפוס לברירת מחדל של")} onClick={() => onClear(r.id)} className="rounded-lg border bg-white px-2 py-1 hover:bg-slate-50">איפוס לברירת מחדל</button>}
+                  {workMode && r.hasOverride && <button type="button" aria-label={L("איפוס לברירת מחדל של")} onClick={() => onClear(r.id)} className="rounded-lg border bg-white px-2 py-1 hover:bg-slate-50">איפוס לברירת מחדל</button>}
                 </div>
               </div>
             </div>

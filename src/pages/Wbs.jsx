@@ -11,7 +11,7 @@ import { FILTERS, buildGraph, buildRows, countsFor, currentStages, focusLists, f
 
 const HEADERS = ["WBS", "משימה", "סטטוס", "החלטה", "אחראי", "הפעולה הבאה"];
 
-export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
+export default function Wbs({ plans, plan, setPlan, template, gantt, go, workMode = false }) {
   const current = plans.find((p) => p.id === plan);
   // העדכון השבועי שמתפרסם בריפו. אם הקובץ חסר, האתר עובד כמו קודם (רק בחירות מקומיות).
   const [weekly, setWeekly] = useState({ updated: null, plans: {} });
@@ -82,30 +82,30 @@ export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
           <h1 className="text-2xl font-bold">מה קורה בתכנית · WBS</h1>
           <p className="text-sm text-slate-500" data-testid="weekly-stamp">
             {weekly.updated ? <>עדכון שבועי אחרון: <b>{new Date(weekly.updated + "T12:00:00").toLocaleDateString("he-IL")}</b>{stale.days !== null && <> (לפני {stale.days} ימים)</>}. </> : "אין עדכון שבועי מתפרסם. "}
-            שינויים שתעשי כאן נשמרים בדפדפן שלך בלבד, עד שיכנסו לעדכון השבועי.
+            {workMode ? "שינויים שתעשי כאן נשמרים בדפדפן שלך בלבד, עד שיכנסו לעדכון השבועי." : "מצב תצוגה בלבד · לא ניתן לערוך נתונים בקישור זה."}
           </p>
           {weekly.updated && stale.stale && <p className="mt-1 inline-block rounded-lg bg-amber-100 px-3 py-1 text-sm text-amber-900" data-testid="stale">העדכון השבועי ישן. הסטטוסים עלולים לא לשקף את המצב.</p>}
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <PlanPicker plans={plans} plan={plan} onChange={setPlan} />
           <button onClick={() => go("/gantt", plan)} className="rounded-xl border bg-white px-4 py-2 text-sm hover:bg-slate-50">גאנט התכנית</button>
-          <button onClick={exportLocal} className="rounded-xl border bg-white px-4 py-2 text-sm hover:bg-slate-50" title="קובץ עם כל מה ששינית בדפדפן, לשליחה לעדכון השבועי">ייצוא העדכונים שלי</button>
-          <button onClick={reset} className="rounded-xl border bg-white px-4 py-2 text-sm hover:bg-slate-50" title="מוחק את השינויים שבדפדפן וחוזר לעדכון השבועי">איפוס בחירות לתכנית</button>
+          <button hidden={!workMode} onClick={exportLocal} className="rounded-xl border bg-white px-4 py-2 text-sm hover:bg-slate-50" title="קובץ עם כל מה ששינית בדפדפן, לשליחה לעדכון השבועי">ייצוא העדכונים שלי</button>
+          <button hidden={!workMode} onClick={reset} className="rounded-xl border bg-white px-4 py-2 text-sm hover:bg-slate-50" title="מוחק את השינויים שבדפדפן וחוזר לעדכון השבועי">איפוס בחירות לתכנית</button>
         </div>
       </div>
 
       <NowSummary plan={current} completed={completed} versionB={versionB} pct={pct} current={cur} summaries={summaries} counts={counts} fresh={fresh}
         schedules={schedules} maint={maint} filter={filter} onFilter={setFilter} stageFocus={stageFocus} onStage={setStageFocus} />
 
-      {pending.length > 0 && (
+      {workMode && pending.length > 0 && (
         <p className="mb-3 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm" data-testid="pending">
           יש {pending.length} שינויים שנשמרו רק בדפדפן הזה ועוד לא נכנסו לעדכון השבועי. לחצי &quot;ייצוא העדכונים שלי&quot; ושלחי את הקובץ.
         </p>
       )}
 
-      <FocusPanels lists={lists} onGoTo={goTo} onAction={(id, patch) => setMany(id, patch)} />
+      <FocusPanels lists={lists} onGoTo={goTo} onAction={(id, patch) => setMany(id, patch)} workMode={workMode} />
 
-      <div className="mb-4 rounded-2xl border border-violet-200 bg-violet-50 p-4">
+      <div hidden={!workMode} className="mb-4 rounded-2xl border border-violet-200 bg-violet-50 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <b>גרסה ב׳ / עדכון מהותי</b>
@@ -176,7 +176,7 @@ export default function Wbs({ plans, plan, setPlan, template, gantt, go }) {
                       const idx = all.indexOf(r), gs = segs[r.stage];
                       return (
                         <TaskRow key={r.id} r={r} open={!!openRows[r.id]} onToggle={(id) => setOpenRows((o) => ({ ...o, [id]: !o[id] }))}
-                          onPatch={setMany} onClear={clearRow} onGoTo={goTo} rowsById={rowsById} graph={graph} flash={flash === r.id}
+                          onPatch={setMany} onClear={clearRow} onGoTo={goTo} workMode={workMode} rowsById={rowsById} graph={graph} flash={flash === r.id}
                           bars={taskBar(r, idx, all.length, gs)} total={total} undatedText={gs && gs.undated ? "הושלם (ללא תאריך)" : gs && gs.st === "unscheduled" ? "טרם תוזמן" : "אין חלון בגאנט"} />
                       );
                     })}

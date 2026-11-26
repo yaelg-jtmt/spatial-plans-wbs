@@ -10,7 +10,7 @@ const PANELS = [
 ];
 
 // ארבעה פאנלים. כל פריט פותח את השורה שלו בטבלה, ויש כפתורי עדכון מהיר.
-export default function FocusPanels({ lists, onGoTo, onAction }) {
+export default function FocusPanels({ lists, onGoTo, onAction, workMode = false }) {
   const [all, setAll] = useState({});
   return (
     <div className="mb-4 grid items-start gap-3 md:grid-cols-2" role="group" aria-label="מה לעשות עכשיו">
@@ -31,7 +31,7 @@ export default function FocusPanels({ lists, onGoTo, onAction }) {
                     <span className="block text-xs text-slate-500">שלב {r.stage}: {STAGES[r.stage]} · {r.owner}{p.key === "active" && r.unmet.length ? ` · ממתינה לסיום ${r.unmet.slice(0, 2).join(", ")}${r.unmet.length > 2 ? "…" : ""}` : ""}</span>
                   </button>
                   <span className="flex shrink-0 gap-1">
-                    {p.actions.map((a) => (
+                    {workMode && p.actions.map((a) => (
                       <button key={a.label} type="button" aria-label={`${a.label} ${r.id}`} onClick={() => onAction(r.id, a.patch)} className="rounded-lg border bg-white px-2 py-1 text-xs hover:bg-slate-50">{a.label}</button>
                     ))}
                   </span>
