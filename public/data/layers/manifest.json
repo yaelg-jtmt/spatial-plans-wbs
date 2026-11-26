@@ -1,8 +1,39 @@
 {
   "layers": [
-    { "id": "gilo-point", "name": "גילה – נקודות", "plan": "גילה", "state": "proposed", "file": "gilo.point.1.geojson", "count": 127, "replace": true },
-    { "id": "gilo-line", "name": "גילה – קווים", "plan": "גילה", "state": "proposed", "file": "gilo.line.1.geojson", "count": 158, "replace": true },
-    { "id": "oranim-point", "name": "אורנים – נקודות", "plan": "אורנים", "state": "proposed", "file": "oranim.point.geojson", "count": 24 }
+    {
+      "id": "gilo-point",
+      "name": "גילה – נקודות",
+      "plan": "גילה",
+      "state": "proposed",
+      "file": "gilo.point.1.geojson",
+      "count": 127,
+      "replace": true
+    },
+    {
+      "id": "gilo-line",
+      "name": "גילה – קווים",
+      "plan": "גילה",
+      "state": "proposed",
+      "file": "gilo.line.1.geojson",
+      "count": 158,
+      "replace": true
+    },
+    {
+      "id": "oranim-point",
+      "name": "אורנים – נקודות",
+      "plan": "אורנים",
+      "state": "proposed",
+      "file": "oranim.point.geojson",
+      "count": 24
+    },
+    {
+      "id": "oranim-line",
+      "name": "אורנים – קווים",
+      "plan": "אורנים",
+      "state": "proposed",
+      "file": "oranim.line.geojson",
+      "count": 77
+    }
   ],
   "decks": []
 }
