@@ -32,10 +32,10 @@ test("שינויים מקומיים שעוד לא נכנסו לעדכון: רק 
   assert.deepEqual(pendingLocal({}, {}), []);
 });
 test("הרכבה על ה-WBS: סטטוס מהעדכון השבועי משנה את המצב, והתלויות מתעדכנות", () => {
-  const weeklyRows = Object.fromEntries(["2.1", "2.2"].map((id) => [id, { status: "הושלם", updated: T("12-01") }]));
+  const weeklyRows = Object.fromEntries(["2.1", "1.6"].map((id) => [id, { status: "הושלם", updated: T("12-01") }]));
   const rows = buildRows(P.TA, tpl, mergeOverrides(weeklyRows, {}));
   const g = (id) => rows.find((r) => r.id === id);
-  assert.deepEqual([g("2.1").state, g("2.1").manual, g("2.2").state], ["done", true, "done"]);
+  assert.deepEqual([g("2.1").state, g("2.1").manual, g("1.6").state], ["done", true, "done"]);
   assert.equal(g("2.4").state, "active", "2.4 תלויה ב-2.1 ו-2.3, ו-2.3 עדיין בעבודה");
   assert.equal(g("2.5").state, "active");
 });

@@ -20,8 +20,8 @@ const idsOf = (rows) => rows.map((r) => r.id);
 test("תלויות: טווחים מורחבים לפי סדר הטבלה, ו'נתונים' נשמר כהערה", () => {
   const order = graph.order;
   assert.deepEqual(parsePredecessors("1.2–1.5", order).ids, ["1.2", "1.3", "1.4", "1.5"]);
-  assert.deepEqual(parsePredecessors("3.2–3.13A", order).ids, ["3.2", "3.6", "3.9", "3.10", "3.11", "3.13A"]);
-  assert.deepEqual(parsePredecessors("6.2–6.6", order).ids, ["6.2", "6.3", "6.4", "6.4A", "6.5", "6.6"]);
+  assert.deepEqual(parsePredecessors("3.2,3.6,3.9,3.10,3.11", order).ids, ["3.2", "3.6", "3.9", "3.10", "3.11"]);
+  assert.deepEqual(parsePredecessors("6.2–6.6", order).ids, ["6.2", "6.3", "6.4", "6.4A", "6.6"]);
   assert.deepEqual(parsePredecessors("4.1,M3.4", order).ids, ["4.1", "M3.4"]);
   assert.deepEqual(parsePredecessors("2.4/נתונים", order), { ids: ["2.4"], notes: ["נתונים"] });
   for (const none of ["—", "", null, undefined, "-"]) assert.deepEqual(parsePredecessors(none, order), { ids: [], notes: [] });
@@ -29,8 +29,8 @@ test("תלויות: טווחים מורחבים לפי סדר הטבלה, ו'נ�
   assert.deepEqual(parsePredecessors("1.5–1.2", order).ids, [], "טווח הפוך לא מורחב");
   assert.deepEqual(parsePredecessors("1.1,1.1", order).ids, ["1.1"]);
 });
-test("תלויות: בכל 65 השורות כל קודמת קיימת ומופיעה לפני המשימה, ההערה היחידה היא 'נתונים', ואין מעגלים", () => {
-  assert.equal(tpl.length, 65);
+test("תלויות: בכל 62 השורות כל קודמת קיימת ומופיעה לפני המשימה, ההערה היחידה היא 'נתונים', ואין מעגלים", () => {
+  assert.equal(tpl.length, 62);
   const notes = [...graph.notes.entries()].filter(([, n]) => n.length);
   assert.deepEqual(notes, [["2.8", ["נתונים"]]]);
   for (const r of tpl) for (const p of graph.preds.get(r.id)) assert.ok(graph.order.indexOf(p) < graph.order.indexOf(r.id), `${r.id} <- ${p}`);
@@ -78,7 +78,7 @@ test("שורות: שדות manual / note / updated נגזרים מהבחירות
   assert.deepEqual([g("2.1").manual, g("2.1").note, g("2.1").updated], [true, "נסגר בפגישה", "2026-11-20T08:00:00.000Z"]);
   assert.deepEqual([g("2.4").manual, g("2.4").hasOverride], [false, true], "שינוי אחראי בלבד אינו עדכון סטטוס");
   assert.deepEqual([g("2.8").manual, g("2.8").state], [true, "excluded"]);
-  assert.deepEqual([g("2.2").manual, g("2.2").hasOverride, g("2.2").note, g("2.2").updated], [false, false, "", null]);
+  assert.deepEqual([g("1.6").manual, g("1.6").hasOverride, g("1.6").note, g("1.6").updated], [false, false, "", null]);
   assert.equal(JSON.stringify(tpl), snapshot);
 });
 
@@ -92,14 +92,14 @@ test("השלבים הנוכחיים: לפי התכנית, תכנית שהושל�
   assert.deepEqual(currentStages(P.GI, true), [0, 1, 2, 3, 4]);
 });
 test("סיכום שלב: הספירות מסתכמות, ואחוז הושלם מחושב ללא לא-נספרות", () => {
-  const rows = view("TA", { "2.8": { decision: "לא נדרש" }, ...done(["2.1", "2.2"]) });
+  const rows = view("TA", { "2.8": { decision: "לא נדרש" }, ...done(["2.1"]) });
   for (let s = 0; s < 7; s++) {
     const c = stageSummary(rows, s);
     assert.equal(c.done + c.active + c.ready + c.queued + c.blocked + c.waiting + c.excluded, c.total, `שלב ${s}`);
   }
   const s2 = stageSummary(rows, 2);
-  assert.deepEqual([s2.total, s2.counted, s2.done, s2.excluded], [13, 12, 2, 1]);
-  assert.equal(s2.pct, Math.round((2 / 12) * 100));
+  assert.deepEqual([s2.total, s2.counted, s2.done, s2.excluded], [12, 11, 1, 1]);
+  assert.equal(s2.pct, Math.round((1 / 11) * 100));
   assert.equal(stageSummary(rows, 0).pct, 100);
   assert.equal(stageDisplay(stageSummary(rows, 0), false), "done");
   assert.equal(stageDisplay(stageSummary(rows, 2), true), "current");
@@ -108,14 +108,14 @@ test("סיכום שלב: הספירות מסתכמות, ואחוז הושלם מ
 });
 
 // ---------- רשימות ----------
-test("תכנית פעילה (תלפיות): 24 משימות בעבודה, 2.4/2.8/2.9/2.12 ו-3.x 'לפי צורך' מחכות להחלטה, ושלבים 4–6 ממתינים", () => {
+test("תכנית פעילה (תלפיות): 21 משימות בעבודה, משימות מותנות מחכות להחלטה, ושלבים 4–6 ממתינים", () => {
   const rows = view("TA"), c = countsFor(rows, 3), l = focusLists(rows, 3);
-  assert.equal(c.active, 24); assert.equal(c.ready, 0); assert.equal(c.done, 13);
-  assert.equal(c.queued, 28); assert.equal(c.stuck, 0); assert.equal(c.excluded, 0);
-  assert.equal(c.done + c.active + c.queued, 65);
-  assert.deepEqual(idsOf(l.decide), ["2.4", "2.8", "2.9", "2.12", "3.2", "3.9", "3.13A", "3.14"]);
+  assert.equal(c.active, 21); assert.equal(c.ready, 0); assert.equal(c.done, 14);
+  assert.equal(c.queued, 27); assert.equal(c.stuck, 0); assert.equal(c.excluded, 0);
+  assert.equal(c.done + c.active + c.queued, 62);
+  assert.deepEqual(idsOf(l.decide), ["2.4", "2.8", "2.9", "2.12", "3.2", "3.9"]);
   assert.ok(!idsOf(l.decide).includes("5.3"), "החלטות בשלבים עתידיים לא מוצגות");
-  assert.deepEqual(l.active.slice(0, 3).map((r) => r.id), ["2.1", "2.6", "2.7"], "קודם מי שכל הקודמות שלו הושלמו (2.5 מחכה ל-2.1), לפי סדר הטבלה");
+  assert.deepEqual(l.active.slice(0, 3).map((r) => r.id), ["2.1", "2.3", "2.6"], "קודם מי שכל הקודמות שלו הושלמו, לפי סדר הטבלה");
 });
 test("מיון 'בעבודה': לפי שלב, ואז מי שכל קודמותיו הושלמו (unmet קטן) קודם", () => {
   const rows = view("TA");
@@ -125,7 +125,7 @@ test("מיון 'בעבודה': לפי שלב, ואז מי שכל קודמותי�
 });
 test("ממתינות להחלטה: לא כוללת הושלמו, לא-נספרות, ושלבים אחרי השלב הנוכחי", () => {
   const rows = view("TA", { "2.4": { status: "הושלם" }, "2.8": { decision: "לא נדרש" }, "2.9": { decision: "נדרש" } });
-  assert.deepEqual(idsOf(focusLists(rows, 3).decide), ["2.12", "3.2", "3.9", "3.13A", "3.14"]);
+  assert.deepEqual(idsOf(focusLists(rows, 3).decide), ["2.12", "3.2", "3.9"]);
   assert.ok(needsDecision(rows.find((r) => r.id === "2.12"), 3) && !needsDecision(rows.find((r) => r.id === "2.12"), 1));
 });
 test("גרסה ב': כל רכיבי 0–4 ממתינים להחלטה, השלב הנוכחי 0–4, ושלבים 5–6 לא", () => {
@@ -148,11 +148,11 @@ test("מסננים: ההגדרות תואמות לספירות, והספירות
 
 // ---------- אמינות ----------
 test("אמינות: כמה משימות בשלבים הנוכחיים עודכנו ידנית, ומתי עודכן לאחרונה", () => {
-  assert.deepEqual(freshness(view("TA"), [2, 3]), { total: 24, confirmed: 0, last: null });
-  const rows = view("TA", { "2.1": { status: "הושלם", updated: "2026-11-20T08:00:00.000Z" }, "2.2": { decision: "נדרש", updated: "2026-11-22T10:00:00.000Z" }, "1.1": { note: "x", updated: "2026-11-23T10:00:00.000Z" }, "2.8": { decision: "לא נדרש", updated: "2026-11-21T10:00:00.000Z" } });
+  assert.deepEqual(freshness(view("TA"), [2, 3]), { total: 21, confirmed: 0, last: null });
+  const rows = view("TA", { "2.1": { status: "הושלם", updated: "2026-11-20T08:00:00.000Z" }, "2.4": { decision: "נדרש", updated: "2026-11-22T10:00:00.000Z" }, "1.1": { note: "x", updated: "2026-11-23T10:00:00.000Z" }, "2.8": { decision: "לא נדרש", updated: "2026-11-21T10:00:00.000Z" } });
   const f = freshness(rows, [2, 3]);
-  assert.equal(f.confirmed, 2, "2.1 ו-2.2 (2.8 לא נספרת, 1.1 בשלב קודם)");
-  assert.equal(f.total, 23);
+  assert.equal(f.confirmed, 2, "2.1 ו-2.4 (2.8 לא נספרת, 1.1 בשלב קודם)");
+  assert.equal(f.total, 20);
   assert.equal(f.last, "2026-11-23T10:00:00.000Z");
 });
 
@@ -173,7 +173,7 @@ test("תחזוקה: המחזור הבא, והאם המחזור הנוכחי", ()
   assert.deepEqual(nextMaintenance(P.SW, gantt, false, new Date(2026, 10, 24)), { label: "ינו׳ 27", now: false });
   assert.deepEqual(nextMaintenance(P.SW, gantt, false, new Date(2027, 0, 10)), { label: "ינו׳ 27", now: true });
   assert.deepEqual(nextMaintenance(P.SW, gantt, false, new Date(2027, 0, 31)), { label: "ינו׳ 27", now: true });
-  assert.deepEqual(nextMaintenance(P.SW, gantt, false, new Date(2027, 1, 1)), { label: "אפר׳ 27", now: false });
+  assert.equal(nextMaintenance(P.SW, gantt, false, new Date(2027, 1, 1)), null, "המחזור השנתי של ינואר הסתיים ואין מחזור נוסף בטווח הגאנט");
   assert.equal(nextMaintenance(P.SW, gantt, false, new Date(2028, 0, 1)), null, "אחרי סוף הגאנט");
   assert.equal(nextMaintenance(P.FI, gantt, false, new Date(2026, 10, 24)), null, "אין תחזוקה בגאנט");
 });

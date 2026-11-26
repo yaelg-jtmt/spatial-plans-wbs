@@ -48,7 +48,7 @@ export default function Gantt({ plans, plan, setPlan, gantt, template }) {
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">גאנט כל התכניות</h1>
-          <p className="text-sm text-slate-500">תצוגה חודשית מנובמבר 2026 עד דצמבר 2027. לחיצה על שם תכנית פותחת וסוגרת את שלביה. תחזוקה מוצגת כמחזורים לאורך השנה.</p>
+          <p className="text-sm text-slate-500">תצוגה חודשית מנובמבר 2026 עד דצמבר 2027. לחיצה על שם תכנית פותחת וסוגרת את שלביה. תחזוקה מוצגת כמחזור שנתי.</p>
         </div>
         <PlanPicker plans={plans} plan={plan} onChange={(id) => { setPlan(id); setPlanFilter(id); }} />
       </div>
@@ -68,7 +68,7 @@ export default function Gantt({ plans, plan, setPlan, gantt, template }) {
           <span><i className="ml-1 inline-block h-3 w-3 rounded bg-emerald-500" />הושלם</span>
           <span><i className="ml-1 inline-block h-3 w-3 rounded bg-amber-500" />פעיל</span>
           <span><i className="ml-1 inline-block h-3 w-3 rounded bg-slate-400" />עתידי</span>
-          <span><i className="ml-1 inline-block h-3 w-3 rounded bg-blue-600" />מחזור תחזוקה</span>
+          <span><i className="ml-1 inline-block h-3 w-3 rounded bg-blue-600" />תחזוקה שנתית</span>
           <span><i className="ml-1 inline-block h-3 w-0.5 bg-red-500" />היום</span>
         </span>
       </div>
@@ -131,7 +131,7 @@ export default function Gantt({ plans, plan, setPlan, gantt, template }) {
           })}
         </div>
       </div>
-      <p className="mt-2 text-xs text-slate-500">תאריכים הם תכנון עבודה ראשוני עד לאימות. תכניות שהושלמו מוצגות כהושלמו, ורק מחזורי התחזוקה מתוארכים.</p>
+      <p className="mt-2 text-xs text-slate-500">תאריכים הם תכנון עבודה ראשוני עד לאימות. תכניות שהושלמו מוצגות כהושלמו, ורק מחזור התחזוקה השנתי מתוארך.</p>
     </>
   );
 }

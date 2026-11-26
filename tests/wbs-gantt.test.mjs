@@ -178,7 +178,7 @@ test("גאנט: 14 חודשים, חלונות תקינים, ולכל תכנית 
     for (const g of segs) { assert.ok(g.a >= 0 && g.b <= 14 && g.a < g.b, `${id} ${g.l}`); assert.ok(g.s >= 0 && g.s <= 6); }
   }
 });
-test("גאנט: תחזוקה היא מחזורים נפרדים ולא פס רציף (גורי 5)", () => {
+test("גאנט: תחזוקה היא מחזור שנתי אחד", () => {
   for (const p of plans) {
     const rows = stageRows(p, gantt);
     const m = rows.find((r) => r.s === 6);
@@ -190,8 +190,8 @@ test("גאנט: תחזוקה היא מחזורים נפרדים ולא פס רצ
     assert.ok(months.length <= 4);
   }
   const sw = stageRows(P.SW, gantt).find((r) => r.s === 6);
-  assert.deepEqual(sw.bars.map((b) => b.a), [2, 5, 8, 11]);
-  assert.deepEqual(maintenanceCycles({ a: 11, b: 14 }, [2, 5, 8, 11], 14), [{ a: 11, b: 12 }]);
+  assert.deepEqual(sw.bars.map((b) => b.a), [2]);
+  assert.deepEqual(maintenanceCycles({ a: 0, b: 14 }, [2], 14), [{ a: 2, b: 3 }]);
 });
 test("גאנט: תכנית שהושלמה - שלבים 'הושלם' ללא תאריכים, ורק מחזורי תחזוקה מתוארכים", () => {
   for (const id of COMPLETED) {
@@ -224,7 +224,7 @@ test("גאנט: שלבים שקדמו לשלב הנוכחי 'הושלם', ושל
 });
 test("גאנט: תכנית פעילה מציגה חלון לכל שלב מתוזמן, ועם 'span' כולל", () => {
   const rows = stageRows(P.ZB, gantt);
-  assert.deepEqual(rows.filter((r) => r.bars.length).map((r) => r.s), [3, 4, 5, 6]);
+  assert.deepEqual(rows.filter((r) => r.bars.length).map((r) => r.s), [3, 4, 5]);
   assert.ok(planSpan(rows).a === 0 && planSpan(rows).b === 8);
   assert.equal(rows[3].bars[0].m, 1);
 });

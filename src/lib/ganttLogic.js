@@ -17,7 +17,7 @@ export function stageRows(plan, gantt, versionB = false) {
     const seg = segs[s];
     if (s === 6 && seg) {
       const bars = maintenanceCycles(seg, gantt.cycleMonths, total).map((c) => ({ ...c, st: "maint", l: "מחזור" }));
-      return { s, label: "תחזוקה (מחזורי)", bars, undated: false, st: "maint" };
+      return { s, label: "תחזוקה שנתית", bars, undated: false, st: "maint" };
     }
     if (seg && !done) return { s, label: seg.l, bars: [{ a: seg.a, b: seg.b, st: seg.st, l: seg.l, m: seg.m }], undated: false, st: seg.st };
     if (seg && done) return { s, label: seg.l, bars: [], undated: true, st: "done" };

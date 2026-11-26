@@ -31,7 +31,7 @@ export default function NowSummary({ plan, completed, versionB, pct, current, su
         {current.map((s) => (
           <li key={s} data-testid={`current-${s}`}>
             <b>שלב {s}: {STAGES[s]}</b>
-            {s === 6 && maint && <span className="text-slate-600"> · מחזורי · {maint.now ? "מחזור התחזוקה מתקיים החודש" : `המחזור הבא: ${maint.label}`}</span>}
+            {s === 6 && maint && <span className="text-slate-600"> · שנתי · {maint.now ? "מחזור התחזוקה מתקיים החודש" : `המחזור הבא: ${maint.label}`}</span>}
             {schedules[s] && <span className="text-slate-600"> · חלון בגאנט: {schedules[s].label}</span>}
             {schedules[s] && schedules[s].late && (
               <span className="mr-2 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700" title="תאריכי הגאנט הם תכנון ראשוני ולא מאומתים">עבר חלון הזמן בגאנט</span>
