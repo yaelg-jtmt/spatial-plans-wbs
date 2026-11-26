@@ -40,7 +40,7 @@ if (msoRe.test(html)) { html = html.replace(msoRe, ""); log.push("הוסר בל�
 html = html.replace(/\sxmlns:mso="[^"]*"/, "").replace(/\sxmlns:msdt="[^"]*"/, "");
 
 for (const patch of [patchDashboard, patchSections, patchXtables]) {
-  const r = patch(html);
+  const r = patch === patchSections ? patch(html, { force: true }) : patch(html);
   html = r.html; log.push(...r.log); warn.push(...r.warn);
 }
 

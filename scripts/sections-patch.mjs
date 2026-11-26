@@ -8,9 +8,19 @@ export const UI = read("./sections-ui.snippet.js");
 export const SX_MARK = "/* sections:";
 const ANCHOR = /^([ \t]*)function presProject\(body, p\) \{[ \t]*(\r?\n)/m;   // תומך גם בסיומות שורה של Windows (CRLF)
 
-export function patchSections(html) {
+export function patchSections(html, { force = false } = {}) {
   const log = [], warn = [];
-  if (html.includes(SX_MARK)) { log.push("פופאפ חתכי הרחוב כבר מוזרק"); return { html, log, warn }; }
+  if (html.includes(SX_MARK) && !force) { log.push("פופאפ חתכי הרחוב כבר מוזרק"); return { html, log, warn }; }
+  if (html.includes(SX_MARK) && force) {
+    const start = html.indexOf(SX_MARK);
+    const anchor = html.indexOf("function presProject(body, p)", start);
+    if (anchor < 0) {
+      warn.push("נמצא sections קיים אבל לא נמצאה presProject; לא בוצע רענון.");
+      return { html, log, warn };
+    }
+    html = html.slice(0, start) + html.slice(anchor);
+    log.push("הוסר פופאפ חתכים קיים לצורך רענון");
+  }
   if (!ANCHOR.test(html)) {
     warn.push("לא נמצאה הפונקציה presProject. פופאפ החתכים לא הוזרק. שלחי לי את שורות presProject מהדאשבורד.");
     return { html, log, warn };
